@@ -9,8 +9,19 @@
 /* Begin PBXBuildFile section */
 		124069B42E1C682200239129 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B32E1C682200239129 /* OpenAPIRuntime */; };
 		124069B72E1C687300239129 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B62E1C687300239129 /* OpenAPIURLSession */; };
-		124069BA2E1C6A4200239129 /* _OpenAPIGeneratorCore in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B92E1C6A4200239129 /* _OpenAPIGeneratorCore */; };
-		124069BC2E1C6A4200239129 /* swift-openapi-generator in Frameworks */ = {isa = PBXBuildFile; productRef = 124069BB2E1C6A4200239129 /* swift-openapi-generator */; };
+		124069C12E1C749300239129 /* openapi.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 124069C02E1C749300239129 /* openapi.yaml */; };
+		124069C32E1C74A600239129 /* openapi-generator-config.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 124069C22E1C74A100239129 /* openapi-generator-config.yaml */; };
+		124069EB2E1D566D00239129 /* TrainsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124069E92E1D566D00239129 /* TrainsApp.swift */; };
+		124069EC2E1D566D00239129 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 124069E82E1D566D00239129 /* Assets.xcassets */; };
+		124069F72E1D56AA00239129 /* NearestStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124069DF2E1C766B00239129 /* NearestStationsService.swift */; };
+		12406A022E1F130900239129 /* CopyrightService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A012E1F130400239129 /* CopyrightService.swift */; };
+		12406A092E1FB46100239129 /* SchedualBetweenStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A082E1FB45D00239129 /* SchedualBetweenStationsService.swift */; };
+		12406A0D2E204BCE00239129 /* StationScheduleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A0C2E204BCC00239129 /* StationScheduleService.swift */; };
+		12406A212E204FED00239129 /* RouteStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A202E204FED00239129 /* RouteStationsService.swift */; };
+		12406A372E22697700239129 /* NearestCityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A362E22697600239129 /* NearestCityService.swift */; };
+		12406A432E226AE200239129 /* CarrierInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A422E226AE200239129 /* CarrierInfoService.swift */; };
+		12E62D002E22CD3200B78D19 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124069882E1C63CB00239129 /* ContentView.swift */; };
+		12E62D142E22F51900B78D19 /* AllStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E62D132E22F51800B78D19 /* AllStationsService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,16 +43,24 @@
 
 /* Begin PBXFileReference section */
 		124069832E1C63CB00239129 /* Trains.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trains.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		124069882E1C63CB00239129 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		124069902E1C63CD00239129 /* TrainsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrainsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1240699A2E1C63CD00239129 /* TrainsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrainsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		124069C02E1C749300239129 /* openapi.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = openapi.yaml; sourceTree = "<group>"; };
+		124069C22E1C74A100239129 /* openapi-generator-config.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "openapi-generator-config.yaml"; sourceTree = "<group>"; };
+		124069DF2E1C766B00239129 /* NearestStationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearestStationsService.swift; sourceTree = "<group>"; };
+		124069E82E1D566D00239129 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		124069E92E1D566D00239129 /* TrainsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainsApp.swift; sourceTree = "<group>"; };
+		12406A012E1F130400239129 /* CopyrightService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CopyrightService.swift; sourceTree = "<group>"; };
+		12406A082E1FB45D00239129 /* SchedualBetweenStationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedualBetweenStationsService.swift; sourceTree = "<group>"; };
+		12406A0C2E204BCC00239129 /* StationScheduleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationScheduleService.swift; sourceTree = "<group>"; };
+		12406A202E204FED00239129 /* RouteStationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteStationsService.swift; sourceTree = "<group>"; };
+		12406A362E22697600239129 /* NearestCityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearestCityService.swift; sourceTree = "<group>"; };
+		12406A422E226AE200239129 /* CarrierInfoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierInfoService.swift; sourceTree = "<group>"; };
+		12E62D132E22F51800B78D19 /* AllStationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllStationsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		124069852E1C63CB00239129 /* Trains */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Trains;
-			sourceTree = "<group>";
-		};
 		124069932E1C63CD00239129 /* TrainsTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = TrainsTests;
@@ -60,9 +79,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				124069B72E1C687300239129 /* OpenAPIURLSession in Frameworks */,
-				124069BC2E1C6A4200239129 /* swift-openapi-generator in Frameworks */,
 				124069B42E1C682200239129 /* OpenAPIRuntime in Frameworks */,
-				124069BA2E1C6A4200239129 /* _OpenAPIGeneratorCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,7 +103,10 @@
 		1240697A2E1C63CB00239129 = {
 			isa = PBXGroup;
 			children = (
-				124069852E1C63CB00239129 /* Trains */,
+				124069EA2E1D566D00239129 /* Trains */,
+				124069DE2E1C765A00239129 /* Services */,
+				124069D42E1C762600239129 /* Views */,
+				124069BF2E1C746300239129 /* yaml */,
 				124069932E1C63CD00239129 /* TrainsTests */,
 				1240699D2E1C63CD00239129 /* TrainsUITests */,
 				124069842E1C63CB00239129 /* Products */,
@@ -103,6 +123,47 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		124069BF2E1C746300239129 /* yaml */ = {
+			isa = PBXGroup;
+			children = (
+				124069C22E1C74A100239129 /* openapi-generator-config.yaml */,
+				124069C02E1C749300239129 /* openapi.yaml */,
+			);
+			path = yaml;
+			sourceTree = "<group>";
+		};
+		124069D42E1C762600239129 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				124069882E1C63CB00239129 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		124069DE2E1C765A00239129 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				12E62D132E22F51800B78D19 /* AllStationsService.swift */,
+				12406A422E226AE200239129 /* CarrierInfoService.swift */,
+				12406A362E22697600239129 /* NearestCityService.swift */,
+				12406A202E204FED00239129 /* RouteStationsService.swift */,
+				12406A0C2E204BCC00239129 /* StationScheduleService.swift */,
+				12406A082E1FB45D00239129 /* SchedualBetweenStationsService.swift */,
+				12406A012E1F130400239129 /* CopyrightService.swift */,
+				124069DF2E1C766B00239129 /* NearestStationsService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		124069EA2E1D566D00239129 /* Trains */ = {
+			isa = PBXGroup;
+			children = (
+				124069E82E1D566D00239129 /* Assets.xcassets */,
+				124069E92E1D566D00239129 /* TrainsApp.swift */,
+			);
+			path = Trains;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -117,17 +178,12 @@
 			buildRules = (
 			);
 			dependencies = (
-				124069BE2E1C6A5400239129 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				124069852E1C63CB00239129 /* Trains */,
+				124069C92E1C756B00239129 /* PBXTargetDependency */,
 			);
 			name = Trains;
 			packageProductDependencies = (
 				124069B32E1C682200239129 /* OpenAPIRuntime */,
 				124069B62E1C687300239129 /* OpenAPIURLSession */,
-				124069B92E1C6A4200239129 /* _OpenAPIGeneratorCore */,
-				124069BB2E1C6A4200239129 /* swift-openapi-generator */,
 			);
 			productName = Trains;
 			productReference = 124069832E1C63CB00239129 /* Trains.app */;
@@ -233,6 +289,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				124069C12E1C749300239129 /* openapi.yaml in Resources */,
+				124069EC2E1D566D00239129 /* Assets.xcassets in Resources */,
+				124069C32E1C74A600239129 /* openapi-generator-config.yaml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +316,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12406A0D2E204BCE00239129 /* StationScheduleService.swift in Sources */,
+				12406A372E22697700239129 /* NearestCityService.swift in Sources */,
+				12406A432E226AE200239129 /* CarrierInfoService.swift in Sources */,
+				12406A212E204FED00239129 /* RouteStationsService.swift in Sources */,
+				12406A092E1FB46100239129 /* SchedualBetweenStationsService.swift in Sources */,
+				12E62D002E22CD3200B78D19 /* ContentView.swift in Sources */,
+				12E62D142E22F51900B78D19 /* AllStationsService.swift in Sources */,
+				124069F72E1D56AA00239129 /* NearestStationsService.swift in Sources */,
+				124069EB2E1D566D00239129 /* TrainsApp.swift in Sources */,
+				12406A022E1F130900239129 /* CopyrightService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,9 +356,9 @@
 			target = 124069822E1C63CB00239129 /* Trains */;
 			targetProxy = 1240699B2E1C63CD00239129 /* PBXContainerItemProxy */;
 		};
-		124069BE2E1C6A5400239129 /* PBXTargetDependency */ = {
+		124069C92E1C756B00239129 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = 124069BD2E1C6A5400239129 /* OpenAPIGenerator */;
+			productRef = 124069C82E1C756B00239129 /* OpenAPIGenerator */;
 		};
 /* End PBXTargetDependency section */
 
@@ -622,17 +691,7 @@
 			package = 124069B52E1C687300239129 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
 			productName = OpenAPIURLSession;
 		};
-		124069B92E1C6A4200239129 /* _OpenAPIGeneratorCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 124069B82E1C6A4200239129 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
-			productName = _OpenAPIGeneratorCore;
-		};
-		124069BB2E1C6A4200239129 /* swift-openapi-generator */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 124069B82E1C6A4200239129 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
-			productName = "swift-openapi-generator";
-		};
-		124069BD2E1C6A5400239129 /* OpenAPIGenerator */ = {
+		124069C82E1C756B00239129 /* OpenAPIGenerator */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 124069B82E1C6A4200239129 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
 			productName = "plugin:OpenAPIGenerator";
