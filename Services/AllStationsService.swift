@@ -15,7 +15,6 @@ protocol AllStationsProtocol {
     func getAllStations() async throws -> AllStations
 }
 
-
 final class AllStationsService: AllStationsProtocol {
     
     private let client: Client
@@ -44,7 +43,6 @@ final class AllStationsService: AllStationsProtocol {
             }
             throw error
         }
-
         
         let allStations = try JSONDecoder().decode(AllStations.self, from: fullData)
         
