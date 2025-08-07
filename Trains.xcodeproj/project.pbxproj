@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		123575082E3FE79D004E4BC8 /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123575072E3FE79D004E4BC8 /* MainAppView.swift */; };
+		1235750C2E3FE7E2004E4BC8 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235750B2E3FE7E2004E4BC8 /* HomeView.swift */; };
+		1235750F2E3FE7F0004E4BC8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235750E2E3FE7F0004E4BC8 /* SettingsView.swift */; };
+		123575382E41519A004E4BC8 /* CitySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123575372E41519A004E4BC8 /* CitySelectionView.swift */; };
+		123575652E421DA5004E4BC8 /* StationSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123575642E421DA5004E4BC8 /* StationSelectionView.swift */; };
+		1235758F2E42539C004E4BC8 /* CarrierListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235758E2E42539C004E4BC8 /* CarrierListView.swift */; };
+		1235759F2E439557004E4BC8 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235759E2E439557004E4BC8 /* FiltersView.swift */; };
 		124069B42E1C682200239129 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B32E1C682200239129 /* OpenAPIRuntime */; };
 		124069B72E1C687300239129 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B62E1C687300239129 /* OpenAPIURLSession */; };
 		124069C12E1C749300239129 /* openapi.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 124069C02E1C749300239129 /* openapi.yaml */; };
@@ -42,6 +49,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		123575072E3FE79D004E4BC8 /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		1235750B2E3FE7E2004E4BC8 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1235750E2E3FE7F0004E4BC8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		123575372E41519A004E4BC8 /* CitySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySelectionView.swift; sourceTree = "<group>"; };
+		123575642E421DA5004E4BC8 /* StationSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationSelectionView.swift; sourceTree = "<group>"; };
+		1235758E2E42539C004E4BC8 /* CarrierListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierListView.swift; sourceTree = "<group>"; };
+		1235759E2E439557004E4BC8 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		124069832E1C63CB00239129 /* Trains.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trains.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		124069882E1C63CB00239129 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		124069902E1C63CD00239129 /* TrainsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrainsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,6 +150,13 @@
 			isa = PBXGroup;
 			children = (
 				124069882E1C63CB00239129 /* ContentView.swift */,
+				123575072E3FE79D004E4BC8 /* MainAppView.swift */,
+				1235750B2E3FE7E2004E4BC8 /* HomeView.swift */,
+				1235750E2E3FE7F0004E4BC8 /* SettingsView.swift */,
+				123575372E41519A004E4BC8 /* CitySelectionView.swift */,
+				123575642E421DA5004E4BC8 /* StationSelectionView.swift */,
+				1235758E2E42539C004E4BC8 /* CarrierListView.swift */,
+				1235759E2E439557004E4BC8 /* FiltersView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -320,12 +341,19 @@
 				12406A372E22697700239129 /* NearestCityService.swift in Sources */,
 				12406A432E226AE200239129 /* CarrierInfoService.swift in Sources */,
 				12406A212E204FED00239129 /* RouteStationsService.swift in Sources */,
+				123575382E41519A004E4BC8 /* CitySelectionView.swift in Sources */,
 				12406A092E1FB46100239129 /* SchedualBetweenStationsService.swift in Sources */,
+				1235759F2E439557004E4BC8 /* FiltersView.swift in Sources */,
+				123575082E3FE79D004E4BC8 /* MainAppView.swift in Sources */,
+				123575652E421DA5004E4BC8 /* StationSelectionView.swift in Sources */,
 				12E62D002E22CD3200B78D19 /* ContentView.swift in Sources */,
 				12E62D142E22F51900B78D19 /* AllStationsService.swift in Sources */,
 				124069F72E1D56AA00239129 /* NearestStationsService.swift in Sources */,
+				1235750C2E3FE7E2004E4BC8 /* HomeView.swift in Sources */,
 				124069EB2E1D566D00239129 /* TrainsApp.swift in Sources */,
 				12406A022E1F130900239129 /* CopyrightService.swift in Sources */,
+				1235750F2E3FE7F0004E4BC8 /* SettingsView.swift in Sources */,
+				1235758F2E42539C004E4BC8 /* CarrierListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
