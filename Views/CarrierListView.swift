@@ -7,21 +7,45 @@
 
 import SwiftUI
 
+// MARK: - Модель рейса
+struct Carrier: Identifiable {
+    let id = UUID()
+    let logo: String
+    let date: String
+    let transferNote: String?
+    let departure: String
+    let duration: String
+    let arrival: String
+    let departureTimeCategory: DepartureTime
+}
+
+// MARK: - Экран списка рейсов
 struct CarrierListView: View {
     @Environment(\.dismiss) private var dismiss
-
     @State private var showFilters = false
 
-    @State private var selectedTimes: Set<DepartureTime> = []
-    @State private var showTransfers: Bool? = nil
+    @State private var allCarriers: [Carrier] = [
+        Carrier(logo: "rzd",  date: "14 января", transferNote: "С пересадкой в Костроме", departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
+        Carrier(logo: "fgk",  date: "15 января", transferNote: nil,                           departure: "01:15", duration: "9 часов",  arrival: "09:00", departureTimeCategory: .night),
+        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                           departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day),
+        Carrier(logo: "rzd",  date: "17 января", transferNote: "С пересадкой в Костроме",     departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
+        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                           departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day)
+    ]
+
+    @State private var filteredCarriers: [Carrier] = []
+
+    @State private var currentSelectedTimes: Set<DepartureTime> = []
+    @State private var currentShowTransfers: Bool? = nil
+
+    let fromText: String
+    let toText: String
 
     var body: some View {
         VStack(spacing: 0) {
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Button(action: {
-                        dismiss()
-                    }) {
+                    Button { dismiss() } label: {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.trainsBlack)
                             .imageScale(.large)
@@ -30,54 +54,34 @@ struct CarrierListView: View {
                 }
                 .padding(.bottom, 16)
 
-                Text("Москва (Ярославский вокзал)")
-                    .foregroundColor(.trainsBlack)
-                    .font(.system(size: 24, weight: .bold))
-                +
-                Text(" → ")
-                    .foregroundColor(.trainsBlack)
-                    .font(.system(size: 24, weight: .bold))
-                +
-                Text("Санкт Петербург (Балтийский вокзал)")
-                    .foregroundColor(.trainsBlack)
-                    .font(.system(size: 24, weight: .bold))
+                (Text(fromText)
+                    + Text(" → ")
+                    + Text(toText))
+                .foregroundColor(.trainsBlack)
+                .font(.system(size: 24, weight: .bold))
             }
             .padding()
 
             ScrollView {
-                VStack(spacing: 16) {
-                    CarrierRowView(
-                        logo: "rzd-logo",
-                        date: "14 января",
-                        transferNote: "С пересадкой в Костроме",
-                        departure: "22:30",
-                        duration: "20 часов",
-                        arrival: "08:15"
-                    )
-                    CarrierRowView(
-                        logo: "fgk-logo",
-                        date: "15 января",
-                        transferNote: nil,
-                        departure: "01:15",
-                        duration: "9 часов",
-                        arrival: "09:00"
-                    )
-                    CarrierRowView(
-                        logo: "ural-logo",
-                        date: "16 января",
-                        transferNote: nil,
-                        departure: "12:30",
-                        duration: "9 часов",
-                        arrival: "21:00"
-                    )
-                    CarrierRowView(
-                        logo: "rzd-logo",
-                        date: "17 января",
-                        transferNote: "С пересадкой в Костроме",
-                        departure: "22:30",
-                        duration: "20 часов",
-                        arrival: "08:15"
-                    )
+                VStack(spacing: 8) {
+                    if filteredCarriers.isEmpty {
+                        Text("Вариантов нет")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.trainsBlack)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 230)
+                    } else {
+                        ForEach(filteredCarriers) { c in
+                            CarrierRowView(
+                                logo: c.logo,
+                                date: c.date,
+                                transferNote: c.transferNote,
+                                departure: c.departure,
+                                duration: c.duration,
+                                arrival: c.arrival
+                            )
+                        }
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 80)
@@ -86,35 +90,135 @@ struct CarrierListView: View {
             Button(action: {
                 showFilters = true
             }) {
-                Text("Уточнить время")
-                    .foregroundColor(.white)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color.trainsBlue)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
+                HStack(spacing: 6) {
+                    Text("Уточнить время")
+                        .foregroundColor(.white)
+                        .font(.headline)
+
+                    if !currentSelectedTimes.isEmpty || currentShowTransfers != nil {
+                        Circle()
+                            .fill(Color.trainsRed)
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 60)
+                .background(Color.blue)
+                .cornerRadius(12)
+                .padding(.horizontal)
             }
             .padding(.bottom, 20)
-        }
-        .sheet(isPresented: $showFilters) {
-            FiltersView { times, transfers in
-                self.selectedTimes = times
-                self.showTransfers = transfers
-                applyFilters()
+            .fullScreenCover(isPresented: $showFilters) {
+                FiltersView(
+                    initialSelectedTimes: currentSelectedTimes,
+                    initialShowTransfers: currentShowTransfers
+                ) { selectedTimes, showTransfers in
+                    currentSelectedTimes = selectedTimes
+                    currentShowTransfers = showTransfers
+                    applyFilters(times: selectedTimes, transfers: showTransfers)
+                }
             }
         }
         .background(Color.trainsWhite)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            filteredCarriers = allCarriers
+
+            if !currentSelectedTimes.isEmpty || currentShowTransfers != nil {
+                applyFilters(times: currentSelectedTimes, transfers: currentShowTransfers)
+            }
+        }
     }
 
-    func applyFilters() {
-        // сюда вставь фильтрацию рейсов по `selectedTimes` и `showTransfers`
-        print("Фильтры применены: \(selectedTimes), пересадки: \(showTransfers?.description ?? "nil")")
+    // MARK: - Фильтрация
+    func applyFilters(times: Set<DepartureTime>, transfers: Bool?) {
+        filteredCarriers = allCarriers.filter { carrier in
+            let timeOK = times.isEmpty || times.contains(carrier.departureTimeCategory)
+            let transfersOK = transfers == nil || (transfers! == (carrier.transferNote != nil))
+            return timeOK && transfersOK
+        }
     }
 }
 
+// MARK: - Ячейка рейса
+struct CarrierRowView: View {
+    let logo: String
+    let date: String
+    let transferNote: String?
+    let departure: String
+    let duration: String
+    let arrival: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Image(logo)
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    .padding(.bottom, 16)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(logoName(for: logo))
+                        .font(.system(size: 17))
+                        .foregroundColor(.black)
+                    if let note = transferNote {
+                        Text(note)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                    }
+                }
+                .padding(.bottom, 16)
+
+                Spacer()
+
+                Text(date)
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+                    .padding(.bottom, 25)
+            }
+
+            HStack {
+                Text(departure)
+                    .font(.system(size: 17))
+
+                ZStack {
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(.gray)
+
+                    Text(duration)
+                        .font(.system(size: 12))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 4)
+                        .background(Color.trainsLightGray)
+                }
+                .frame(height: 20)
+                .padding(.horizontal, 8)
+
+                Text(arrival)
+                    .font(.system(size: 17))
+            }
+            .foregroundColor(.black)
+        }
+        .padding()
+        .background(Color.trainsLightGray)
+        .cornerRadius(24)
+    }
+
+    func logoName(for imageName: String) -> String {
+        switch imageName {
+        case "rzd":  return "РЖД"
+        case "fgk":  return "ФГК"
+        case "uralLogistics": return "Урал логистика"
+        default:          return "Перевозчик"
+        }
+    }
+}
+
+// MARK: - Preview
 #Preview {
-    CarrierListView()
+    CarrierListView(
+        fromText: "Москва (Ярославский вокзал)",
+        toText: "Санкт-Петербург (Балтийский вокзал)"
+    )
 }
-

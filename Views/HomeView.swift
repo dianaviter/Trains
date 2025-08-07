@@ -26,7 +26,6 @@ struct HomeView: View {
             VStack {
                 ScrollView {
                     VStack(spacing: 44) {
-                        // заглушки (карусель, ввод откуда/куда)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(1..<6) { _ in
@@ -145,7 +144,7 @@ struct HomeView: View {
                 }
             }
             .navigationDestination(isPresented: $isShowingCarriers) {
-                CarrierListView()
+                CarrierListView(fromText: fromText, toText: toText)
             }
         }
     }

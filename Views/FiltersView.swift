@@ -10,11 +10,20 @@ import SwiftUI
 struct FiltersView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedTimes: Set<DepartureTime> = []
-    @State private var showTransfers: Bool? = nil
+    @State private var selectedTimes: Set<DepartureTime>
+    @State private var showTransfers: Bool?
 
-    /// 👇 Callback для передачи выбранных фильтров обратно
-    var onApply: ((Set<DepartureTime>, Bool?) -> Void)? = nil
+    var onApply: ((Set<DepartureTime>, Bool?) -> Void)?
+
+    init(
+        initialSelectedTimes: Set<DepartureTime> = [],
+        initialShowTransfers: Bool? = nil,
+        onApply: ((Set<DepartureTime>, Bool?) -> Void)? = nil
+    ) {
+        _selectedTimes = State(initialValue: initialSelectedTimes)
+        _showTransfers  = State(initialValue: initialShowTransfers)
+        self.onApply    = onApply
+    }
 
     private var isAnyFilterSelected: Bool {
         !selectedTimes.isEmpty || showTransfers != nil
