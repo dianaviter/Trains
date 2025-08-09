@@ -35,7 +35,7 @@ struct CarrierListView: View {
     @State private var filteredCarriers: [Carrier] = []
 
     @State private var currentSelectedTimes: Set<DepartureTime> = []
-    @State private var currentShowTransfers: Bool? = nil
+    @State private var currentShowTransfers: Bool?
 
     let fromText: String
     let toText: String
@@ -131,7 +131,7 @@ struct CarrierListView: View {
     }
 
     // MARK: - Фильтрация
-    func applyFilters(times: Set<DepartureTime>, transfers: Bool?) {
+    private func applyFilters(times: Set<DepartureTime>, transfers: Bool?) {
         filteredCarriers = allCarriers.filter { carrier in
             let timeOK = times.isEmpty || times.contains(carrier.departureTimeCategory)
             let transfersOK = transfers == nil || (transfers! == (carrier.transferNote != nil))
@@ -207,10 +207,10 @@ struct CarrierRowView: View {
 
     func logoName(for imageName: String) -> String {
         switch imageName {
-        case "rzd":  return "РЖД"
-        case "fgk":  return "ФГК"
-        case "uralLogistics": return "Урал логистика"
-        default:          return "Перевозчик"
+        case "rzd": "РЖД"
+        case "fgk": "ФГК"
+        case "uralLogistics": "Урал логистика"
+        default: "Перевозчик"
         }
     }
 }

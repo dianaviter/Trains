@@ -16,7 +16,7 @@ struct ContentView: View {
             Color.black
                 .ignoresSafeArea()
             
-            Image("Splash Screen")
+            Image(.splashScreen)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .ignoresSafeArea()

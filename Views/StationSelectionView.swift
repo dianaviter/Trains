@@ -10,10 +10,10 @@ import SwiftUI
 struct StationSelectionView: View {
     let city: String
     let onSelect: (String) -> Void
-
+    
     @Environment(\.dismiss) private var dismiss
     @State private var searchText: String = ""
-
+    
     private let stationsByCity: [String: [String]] = [
         "Москва": ["Киевский вокзал", "Курский вокзал", "Ярославский вокзал", "Белорусский вокзал", "Савеловский вокзал", "Ленинградский вокзал"],
         "Санкт Петербург": ["Ладожский", "Московский"],
@@ -23,19 +23,16 @@ struct StationSelectionView: View {
         "Краснодар": ["Краснодар-1", "Краснодар-2"],
         "Омск": ["Омск-Пассажирский"]
     ]
-
+    
     private var stations: [String] {
         stationsByCity[city] ?? []
     }
-
+    
     private var filteredStations: [String] {
-        if searchText.isEmpty {
-            return stations
-        } else {
-            return stations.filter { $0.localizedCaseInsensitiveContains(searchText) }
+        return searchText.isEmpty ? stations : stations.filter { $0.localizedCaseInsensitiveContains(searchText)
         }
     }
-
+    
     var body: some View {
         List {
             if filteredStations.isEmpty {

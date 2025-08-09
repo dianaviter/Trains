@@ -11,7 +11,7 @@ struct MainAppView: View {
     init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(named: "trainsWhite") ?? .white
+        appearance.backgroundColor = UIColor(resource: .trainsWhite)
         
         appearance.shadowColor = .trainsGray
         

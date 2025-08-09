@@ -21,6 +21,7 @@ struct HomeView: View {
     @State private var isSelectingToStation = false
 
     @State private var isShowingCarriers = false
+
     var body: some View {
         NavigationStack {
             VStack {
@@ -117,18 +118,23 @@ struct HomeView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
 
+            // MARK: - Navigation
+
             .navigationDestination(isPresented: $isSelectingFrom) {
                 CitySelectionView { city in
                     selectedFromCity = city
                     isSelectingFrom = false
                     isSelectingFromStation = true
                 }
+                .toolbar(.hidden, for: .tabBar)
             }
+
             .navigationDestination(isPresented: $isSelectingFromStation) {
                 StationSelectionView(city: selectedFromCity) { station in
                     fromText = "\(selectedFromCity) (\(station))"
                     isSelectingFromStation = false
                 }
+                .toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(isPresented: $isSelectingTo) {
                 CitySelectionView { city in
@@ -136,15 +142,18 @@ struct HomeView: View {
                     isSelectingTo = false
                     isSelectingToStation = true
                 }
+                .toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(isPresented: $isSelectingToStation) {
                 StationSelectionView(city: selectedToCity) { station in
                     toText = "\(selectedToCity) (\(station))"
                     isSelectingToStation = false
                 }
+                .toolbar(.hidden, for: .tabBar)
             }
             .navigationDestination(isPresented: $isShowingCarriers) {
                 CarrierListView(fromText: fromText, toText: toText)
+                    .toolbar(.hidden, for: .tabBar)
             }
         }
     }

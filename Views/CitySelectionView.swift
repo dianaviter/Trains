@@ -32,7 +32,7 @@ struct CitySelectionView: View {
                     Text("Город не найден")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.trainsBlack)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxWidth: .infinity)
                 }
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
