@@ -138,18 +138,18 @@ struct CarrierListView: View {
     private func details(for logo: String) -> CarrierDetails {
         switch logo {
         case "rzd":
-            return CarrierDetails(
+            CarrierDetails(
                 name: "ОАО «РЖД»",
                 logoImageName: "rzdHighRes",
                 email: "i.lozgkina@yandex.ru",
                 phone: "+7 (904) 329-27-71"
             )
         case "fgk":
-            return CarrierDetails(name: "ФГК", logoImageName: "fgk", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+            CarrierDetails(name: "ФГК", logoImageName: "fgk", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
         case "uralLogistics":
-            return CarrierDetails(name: "Урал логистика", logoImageName: "uralLogistics", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+            CarrierDetails(name: "Урал логистика", logoImageName: "uralLogistics", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
         default:
-            return CarrierDetails(name: "Перевозчик", logoImageName: logo, email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+            CarrierDetails(name: "Перевозчик", logoImageName: logo, email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
         }
     }
 

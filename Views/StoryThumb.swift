@@ -32,8 +32,7 @@ struct StoryThumb: View {
             Text("Text Text Text Text Text Text Text Text Text")
                 .font(.caption.bold())
                 .foregroundColor(.white)
-                .padding(.leading, 8)
-                .padding(.trailing, 8)
+                .padding(.horizontal, 8)
                 .padding(.bottom, 12)
                 .lineLimit(3)
         }

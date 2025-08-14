@@ -29,7 +29,7 @@ struct CarrierDetailView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 104)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity)
                     .padding(.top) 
                     .padding(.horizontal)
                 

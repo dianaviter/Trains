@@ -19,8 +19,7 @@ struct SettingsView: View {
                         Toggle("Тёмная тема", isOn: $isDarkMode)
                             .tint(Color.trainsBlue)
                             .listRowBackground(Color.clear)
-                            .padding(.bottom)
-                            .padding(.top)
+                            .padding(.vertical)
                             .listRowSeparator(.hidden)
                     }
 
@@ -69,7 +68,7 @@ struct SettingsView: View {
     }
 }
 
-struct UserAgreementView: View {
+private struct UserAgreementView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
