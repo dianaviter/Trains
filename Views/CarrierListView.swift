@@ -27,15 +27,17 @@ struct CarrierListView: View {
     @State private var allCarriers: [Carrier] = [
         Carrier(logo: "rzd",  date: "14 января", transferNote: "С пересадкой в Костроме", departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
         Carrier(logo: "fgk",  date: "15 января", transferNote: nil,                           departure: "01:15", duration: "9 часов",  arrival: "09:00", departureTimeCategory: .night),
-        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                           departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day),
+        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                  departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day),
         Carrier(logo: "rzd",  date: "17 января", transferNote: "С пересадкой в Костроме",     departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
-        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                           departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day)
+        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                  departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day)
     ]
 
     @State private var filteredCarriers: [Carrier] = []
 
     @State private var currentSelectedTimes: Set<DepartureTime> = []
     @State private var currentShowTransfers: Bool?
+
+    @State private var selectedCarrier: CarrierDetails?
 
     let fromText: String
     let toText: String
@@ -54,11 +56,9 @@ struct CarrierListView: View {
                 }
                 .padding(.bottom, 16)
 
-                (Text(fromText)
-                    + Text(" → ")
-                    + Text(toText))
-                .foregroundColor(.trainsBlack)
-                .font(.system(size: 24, weight: .bold))
+                (Text(fromText) + Text(" → ") + Text(toText))
+                    .foregroundColor(.trainsBlack)
+                    .font(.system(size: 24, weight: .bold))
             }
             .padding()
 
@@ -78,7 +78,10 @@ struct CarrierListView: View {
                                 transferNote: c.transferNote,
                                 departure: c.departure,
                                 duration: c.duration,
-                                arrival: c.arrival
+                                arrival: c.arrival,
+                                onCarrierTap: {
+                                    selectedCarrier = details(for: c.logo)
+                                }
                             )
                         }
                     }
@@ -87,9 +90,7 @@ struct CarrierListView: View {
                 .padding(.bottom, 80)
             }
 
-            Button(action: {
-                showFilters = true
-            }) {
+            Button(action: { showFilters = true }) {
                 HStack(spacing: 6) {
                     Text("Уточнить время")
                         .foregroundColor(.white)
@@ -118,15 +119,37 @@ struct CarrierListView: View {
                     applyFilters(times: selectedTimes, transfers: showTransfers)
                 }
             }
+            .navigationDestination(item: $selectedCarrier) { carrier in
+                CarrierDetailView(carrier: carrier)
+                    .toolbar(.hidden, for: .tabBar)
+            }
         }
         .background(Color.trainsWhite)
         .navigationBarBackButtonHidden(true)
         .onAppear {
             filteredCarriers = allCarriers
-
             if !currentSelectedTimes.isEmpty || currentShowTransfers != nil {
                 applyFilters(times: currentSelectedTimes, transfers: currentShowTransfers)
             }
+        }
+    }
+
+    // MARK: - Маппер логотип - карточка
+    private func details(for logo: String) -> CarrierDetails {
+        switch logo {
+        case "rzd":
+            CarrierDetails(
+                name: "ОАО «РЖД»",
+                logoImageName: "rzdHighRes",
+                email: "i.lozgkina@yandex.ru",
+                phone: "+7 (904) 329-27-71"
+            )
+        case "fgk":
+            CarrierDetails(name: "ФГК", logoImageName: "fgk", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+        case "uralLogistics":
+            CarrierDetails(name: "Урал логистика", logoImageName: "uralLogistics", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
+        default:
+            CarrierDetails(name: "Перевозчик", logoImageName: logo, email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
         }
     }
 
@@ -149,6 +172,8 @@ struct CarrierRowView: View {
     let duration: String
     let arrival: String
 
+    let onCarrierTap: () -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
@@ -156,11 +181,16 @@ struct CarrierRowView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                     .padding(.bottom, 16)
+                    .contentShape(Rectangle())
+                    .onTapGesture { onCarrierTap() }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(logoName(for: logo))
                         .font(.system(size: 17))
                         .foregroundColor(.black)
+                        .contentShape(Rectangle())
+                        .onTapGesture { onCarrierTap() }
+
                     if let note = transferNote {
                         Text(note)
                             .font(.system(size: 12))

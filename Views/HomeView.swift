@@ -21,34 +21,26 @@ struct HomeView: View {
     @State private var isSelectingToStation = false
 
     @State private var isShowingCarriers = false
+    
+    private let storyImages = ["stories1", "stories2", "stories3", "stories4"]
+    
+    @State private var stories: [Story] = [
+        .init(imageName: "stories1", isViewed: false),
+        .init(imageName: "stories2", isViewed: false),
+        .init(imageName: "stories3", isViewed: false),
+        .init(imageName: "stories4", isViewed: false),
+    ]
+    @State private var showStories = false
+    @State private var currentStoryIndex = 0
 
     var body: some View {
         NavigationStack {
             VStack {
                 ScrollView {
                     VStack(spacing: 44) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(1..<6) { _ in
-                                    ZStack(alignment: .bottomLeading) {
-                                        Image("Strories default")
-                                            .resizable()
-                                            .frame(width: 92, height: 140)
-                                            .cornerRadius(16)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 16)
-                                                    .stroke(Color.trainsBlue, lineWidth: 4)
-                                            )
-                                        Text("Text Text\nText Text\nText Text")
-                                            .foregroundColor(.white)
-                                            .font(.caption)
-                                            .padding(.leading, 8)
-                                            .padding(.bottom, 12)
-                                    }
-                                    .frame(width: 100, height: 150)
-                                }
-                            }
-                            .padding(.horizontal)
+                        StoriesStrip(stories: $stories) { index in
+                            currentStoryIndex = index
+                            showStories = true
                         }
                         .padding(.top)
 
@@ -154,6 +146,10 @@ struct HomeView: View {
             .navigationDestination(isPresented: $isShowingCarriers) {
                 CarrierListView(fromText: fromText, toText: toText)
                     .toolbar(.hidden, for: .tabBar)
+            }
+            .fullScreenCover(isPresented: $showStories) {
+                StoriesViewer(stories: $stories, currentIndex: $currentStoryIndex)
+                    .ignoresSafeArea()
             }
         }
     }
