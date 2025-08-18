@@ -10,9 +10,7 @@ import SwiftUI
 struct FiltersView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedTimes: Set<DepartureTime>
-    @State private var showTransfers: Bool?
-
+    @StateObject private var vm: FiltersViewModel
     var onApply: ((Set<DepartureTime>, Bool?) -> Void)?
 
     init(
@@ -20,21 +18,17 @@ struct FiltersView: View {
         initialShowTransfers: Bool? = nil,
         onApply: ((Set<DepartureTime>, Bool?) -> Void)? = nil
     ) {
-        _selectedTimes = State(initialValue: initialSelectedTimes)
-        _showTransfers  = State(initialValue: initialShowTransfers)
-        self.onApply    = onApply
-    }
-
-    private var isAnyFilterSelected: Bool {
-        !selectedTimes.isEmpty || showTransfers != nil
+        _vm = StateObject(wrappedValue: FiltersViewModel(
+            selectedTimes: initialSelectedTimes,
+            showTransfers: initialShowTransfers
+        ))
+        self.onApply = onApply
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             HStack {
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.trainsBlack)
                         .imageScale(.large)
@@ -56,7 +50,7 @@ struct FiltersView: View {
                             .stroke(Color.trainsBlack, lineWidth: 2)
                             .frame(width: 18, height: 18)
 
-                        if selectedTimes.contains(time) {
+                        if vm.selectedTimes.contains(time) {
                             RoundedRectangle(cornerRadius: 4)
                                 .fill(Color.trainsBlack)
                                 .frame(width: 18, height: 18)
@@ -66,13 +60,7 @@ struct FiltersView: View {
                                 .font(.system(size: 12, weight: .bold))
                         }
                     }
-                    .onTapGesture {
-                        if selectedTimes.contains(time) {
-                            selectedTimes.remove(time)
-                        } else {
-                            selectedTimes.insert(time)
-                        }
-                    }
+                    .onTapGesture { vm.toggleTime(time) }
                 }
                 .padding(.bottom, 10)
             }
@@ -90,15 +78,13 @@ struct FiltersView: View {
                         .stroke(Color.trainsBlack, lineWidth: 2)
                         .frame(width: 18, height: 18)
 
-                    if showTransfers == true {
+                    if vm.showTransfers == true {
                         Circle()
                             .fill(Color.trainsBlack)
                             .frame(width: 10, height: 10)
                     }
                 }
-                .onTapGesture {
-                    showTransfers = true
-                }
+                .onTapGesture { vm.setTransfers(true) }
             }
             .padding(.bottom, 10)
 
@@ -110,22 +96,20 @@ struct FiltersView: View {
                         .stroke(Color.trainsBlack, lineWidth: 2)
                         .frame(width: 18, height: 18)
 
-                    if showTransfers == false {
+                    if vm.showTransfers == false {
                         Circle()
                             .fill(Color.trainsBlack)
                             .frame(width: 10, height: 10)
                     }
                 }
-                .onTapGesture {
-                    showTransfers = false
-                }
+                .onTapGesture { vm.setTransfers(false) }
             }
 
             Spacer()
 
-            if isAnyFilterSelected {
+            if vm.isAnyFilterSelected {
                 Button(action: {
-                    onApply?(selectedTimes, showTransfers)
+                    onApply?(vm.selectedTimes, vm.showTransfers)
                     dismiss()
                 }) {
                     Text("Применить")
@@ -146,10 +130,11 @@ struct FiltersView: View {
 
 enum DepartureTime: String, CaseIterable {
     case morning = "Утро 06:00 - 12:00"
-    case day = "День 12:00 - 18:00"
+    case day     = "День 12:00 - 18:00"
     case evening = "Вечер 18:00 - 00:00"
-    case night = "Ночь 00:00 - 06:00"
+    case night   = "Ночь 00:00 - 06:00"
 }
+
 
 #Preview {
     FiltersView()

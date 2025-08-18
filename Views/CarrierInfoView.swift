@@ -16,41 +16,47 @@ struct CarrierDetails: Identifiable, Hashable {
 }
 
 struct CarrierDetailView: View {
-    
+
     @Environment(\.openURL) private var openURL
     @Environment(\.dismiss) private var dismiss
-    
-    let carrier: CarrierDetails
-    
+
+    @StateObject private var vm: CarrierDetailViewModel
+
+    init(carrier: CarrierDetails) {
+        _vm = StateObject(wrappedValue: CarrierDetailViewModel(initial: carrier))
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Image(carrier.logoImageName)
+                Image(vm.logoImageName)
                     .resizable()
                     .scaledToFit()
                     .frame(height: 104)
                     .frame(maxWidth: .infinity)
-                    .padding(.top) 
+                    .padding(.top)
                     .padding(.horizontal)
-                
-                Text(carrier.name)
+
+                Text(vm.name)
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundColor(.primary)
                     .padding(.leading)
                     .padding(.bottom, 16)
-                
+
                 VStack(alignment: .leading, spacing: 20) {
-                    if let email = carrier.email, !email.isEmpty {
+                    if let email = vm.email, !email.isEmpty {
                         InfoRow(
                             title: "E-mail",
                             value: email,
                             valueColor: Color.trainsBlue
                         ) {
-                            openURL(URL(string: "mailto:\(email)")!)
+                            if let url = URL(string: "mailto:\(email)") {
+                                openURL(url)
+                            }
                         }
                     }
-                    
-                    if let phone = carrier.phone, !phone.isEmpty {
+
+                    if let phone = vm.phone, !phone.isEmpty {
                         InfoRow(
                             title: "Телефон",
                             value: phone,
@@ -72,28 +78,27 @@ struct CarrierDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.trainsBlack)
                 }
             }
         }
+        .task { await vm.load() }
     }
-    
+
     private struct InfoRow: View {
         let title: String
         let value: String
         let valueColor: Color
         let action: () -> Void
-        
+
         var body: some View {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.system(size: 17))
                     .foregroundColor(.trainsBlack)
-                
+
                 Button(action: action) {
                     Text(value)
                         .font(.system(size: 12))

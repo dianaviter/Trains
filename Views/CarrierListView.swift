@@ -7,40 +7,14 @@
 
 import SwiftUI
 
-// MARK: - Модель рейса
-struct Carrier: Identifiable {
-    let id = UUID()
-    let logo: String
-    let date: String
-    let transferNote: String?
-    let departure: String
-    let duration: String
-    let arrival: String
-    let departureTimeCategory: DepartureTime
-}
-
-// MARK: - Экран списка рейсов
 struct CarrierListView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var showFilters = false
 
-    @State private var allCarriers: [Carrier] = [
-        Carrier(logo: "rzd",  date: "14 января", transferNote: "С пересадкой в Костроме", departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
-        Carrier(logo: "fgk",  date: "15 января", transferNote: nil,                           departure: "01:15", duration: "9 часов",  arrival: "09:00", departureTimeCategory: .night),
-        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                  departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day),
-        Carrier(logo: "rzd",  date: "17 января", transferNote: "С пересадкой в Костроме",     departure: "22:30", duration: "20 часов", arrival: "08:15", departureTimeCategory: .evening),
-        Carrier(logo: "uralLogistics", date: "16 января", transferNote: nil,                  departure: "12:30", duration: "9 часов",  arrival: "21:00", departureTimeCategory: .day)
-    ]
+    @StateObject private var vm: CarrierListViewModel
 
-    @State private var filteredCarriers: [Carrier] = []
-
-    @State private var currentSelectedTimes: Set<DepartureTime> = []
-    @State private var currentShowTransfers: Bool?
-
-    @State private var selectedCarrier: CarrierDetails?
-
-    let fromText: String
-    let toText: String
+    init(fromText: String, toText: String) {
+        _vm = StateObject(wrappedValue: CarrierListViewModel(fromText: fromText, toText: toText))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -56,7 +30,7 @@ struct CarrierListView: View {
                 }
                 .padding(.bottom, 16)
 
-                (Text(fromText) + Text(" → ") + Text(toText))
+                (Text(vm.fromText) + Text(" → ") + Text(vm.toText))
                     .foregroundColor(.trainsBlack)
                     .font(.system(size: 24, weight: .bold))
             }
@@ -64,14 +38,14 @@ struct CarrierListView: View {
 
             ScrollView {
                 VStack(spacing: 8) {
-                    if filteredCarriers.isEmpty {
+                    if vm.filteredCarriers.isEmpty {
                         Text("Вариантов нет")
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.trainsBlack)
                             .frame(maxWidth: .infinity)
                             .padding(.top, 230)
                     } else {
-                        ForEach(filteredCarriers) { c in
+                        ForEach(vm.filteredCarriers) { c in
                             CarrierRowView(
                                 logo: c.logo,
                                 date: c.date,
@@ -80,7 +54,7 @@ struct CarrierListView: View {
                                 duration: c.duration,
                                 arrival: c.arrival,
                                 onCarrierTap: {
-                                    selectedCarrier = details(for: c.logo)
+                                    vm.didSelectCarrier(withLogo: c.logo)
                                 }
                             )
                         }
@@ -90,13 +64,13 @@ struct CarrierListView: View {
                 .padding(.bottom, 80)
             }
 
-            Button(action: { showFilters = true }) {
+            Button(action: { vm.openFilters() }) {
                 HStack(spacing: 6) {
                     Text("Уточнить время")
                         .foregroundColor(.white)
                         .font(.headline)
 
-                    if !currentSelectedTimes.isEmpty || currentShowTransfers != nil {
+                    if !vm.currentSelectedTimes.isEmpty || vm.currentShowTransfers != nil {
                         Circle()
                             .fill(Color.trainsRed)
                             .frame(width: 8, height: 8)
@@ -109,61 +83,36 @@ struct CarrierListView: View {
                 .padding(.horizontal)
             }
             .padding(.bottom, 20)
-            .fullScreenCover(isPresented: $showFilters) {
+            .fullScreenCover(
+                isPresented: Binding(
+                    get: { vm.showFilters },
+                    set: { vm.showFilters = $0 }
+                )
+            ) {
                 FiltersView(
-                    initialSelectedTimes: currentSelectedTimes,
-                    initialShowTransfers: currentShowTransfers
+                    initialSelectedTimes: vm.currentSelectedTimes,
+                    initialShowTransfers: vm.currentShowTransfers
                 ) { selectedTimes, showTransfers in
-                    currentSelectedTimes = selectedTimes
-                    currentShowTransfers = showTransfers
-                    applyFilters(times: selectedTimes, transfers: showTransfers)
+                    vm.applyFilters(times: selectedTimes, transfers: showTransfers)
                 }
             }
-            .navigationDestination(item: $selectedCarrier) { carrier in
+            .navigationDestination(
+                item: Binding(
+                    get: { vm.selectedCarrier },
+                    set: { vm.selectedCarrier = $0 }
+                )
+            ) { carrier in
                 CarrierDetailView(carrier: carrier)
                     .toolbar(.hidden, for: .tabBar)
             }
         }
         .background(Color.trainsWhite)
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            filteredCarriers = allCarriers
-            if !currentSelectedTimes.isEmpty || currentShowTransfers != nil {
-                applyFilters(times: currentSelectedTimes, transfers: currentShowTransfers)
-            }
-        }
-    }
-
-    // MARK: - Маппер логотип - карточка
-    private func details(for logo: String) -> CarrierDetails {
-        switch logo {
-        case "rzd":
-            CarrierDetails(
-                name: "ОАО «РЖД»",
-                logoImageName: "rzdHighRes",
-                email: "i.lozgkina@yandex.ru",
-                phone: "+7 (904) 329-27-71"
-            )
-        case "fgk":
-            CarrierDetails(name: "ФГК", logoImageName: "fgk", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
-        case "uralLogistics":
-            CarrierDetails(name: "Урал логистика", logoImageName: "uralLogistics", email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
-        default:
-            CarrierDetails(name: "Перевозчик", logoImageName: logo, email: "i.lozgkina@yandex.ru", phone: "+7 (904) 329-27-71")
-        }
-    }
-
-    // MARK: - Фильтрация
-    private func applyFilters(times: Set<DepartureTime>, transfers: Bool?) {
-        filteredCarriers = allCarriers.filter { carrier in
-            let timeOK = times.isEmpty || times.contains(carrier.departureTimeCategory)
-            let transfersOK = transfers == nil || (transfers! == (carrier.transferNote != nil))
-            return timeOK && transfersOK
-        }
+        .onAppear { vm.onAppear() }
     }
 }
 
-// MARK: - Ячейка рейса
+// MARK: - Ячейка рейса (без изменений)
 struct CarrierRowView: View {
     let logo: String
     let date: String
