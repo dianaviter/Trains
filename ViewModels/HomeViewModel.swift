@@ -35,6 +35,10 @@ final class HomeViewModel: ObservableObject {
 
     @Published var selectedFromCity: String = ""
     @Published var selectedToCity: String = ""
+    @Published var fromCode: String?
+    @Published var toCode: String?
+    @Published var fromSelected: StationRef?
+    @Published var toSelected: StationRef?
 
     @Published var isSelectingFrom: Bool = false
     @Published var isSelectingTo: Bool = false
@@ -103,5 +107,21 @@ final class HomeViewModel: ObservableObject {
         } catch {
             self.stories = []
         }
+    }
+}
+
+extension HomeViewModel {
+    func selectFromStation(_ s: StationRef) {
+        fromSelected = s
+        fromText = s.title
+        selectedFromCity = s.city
+        isSelectingFromStation = false
+    }
+
+    func selectToStation(_ s: StationRef) {
+        toSelected = s
+        toText = s.title
+        selectedToCity = s.city
+        isSelectingToStation = false
     }
 }

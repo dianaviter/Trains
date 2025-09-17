@@ -6,12 +6,26 @@
 //
 
 import SwiftUI
+import OpenAPIURLSession
 
 struct CitySelectionView: View {
     let onSelect: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var vm = CitySelectionViewModel()
+    @StateObject private var vm: CitySelectionViewModel
+
+    init(onSelect: @escaping (String) -> Void) {
+        self.onSelect = onSelect
+
+        let client = Client(
+            serverURL: try! Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
+        let service = AllStationsService(client: client, apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed")
+        let api = RealCityAPI(service: service)
+
+        _vm = StateObject(wrappedValue: CitySelectionViewModel(api: api))
+    }
 
     var body: some View {
         List {

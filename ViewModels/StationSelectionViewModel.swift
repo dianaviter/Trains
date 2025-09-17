@@ -7,38 +7,14 @@
 
 import Foundation
 
-// MARK: - Сетевой слой (абстракция)
-protocol StationAPI {
-    func fetchStations(city: String, matching query: String) async throws -> [String]
-}
-
-struct MockStationAPI: StationAPI {
-    private let data: [String: [String]] = [
-        "Москва": ["Киевский вокзал", "Курский вокзал", "Ярославский вокзал", "Белорусский вокзал", "Савеловский вокзал", "Ленинградский вокзал"],
-        "Санкт Петербург": ["Ладожский", "Московский"],
-        "Казань": ["Казань-Пассажирская", "Казань-2"],
-        "Сочи": ["Сочи-Пассажирский"],
-        "Горный воздух": ["Центральная"],
-        "Краснодар": ["Краснодар-1", "Краснодар-2"],
-        "Омск": ["Омск-Пассажирский"]
-    ]
-
-    func fetchStations(city: String, matching query: String) async throws -> [String] {
-        try await Task.sleep(nanoseconds: 150_000_000)
-        try Task.checkCancellation()
-
-        let all = data[city] ?? []
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { return all }
-        return all.filter { $0.localizedCaseInsensitiveContains(q) }
-    }
-}
-
-// MARK: - ViewModel
 @MainActor
 final class StationSelectionViewModel: ObservableObject {
+    // ввод пользователя
     @Published var searchText: String = ""
-    @Published var stations: [String] = []
+
+    // результат поиска — уже не [String], а [StationRef]
+    @Published var stations: [StationRef] = []
+
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
 
@@ -46,7 +22,7 @@ final class StationSelectionViewModel: ObservableObject {
     private let api: StationAPI
     private var searchTask: Task<Void, Never>? = nil
 
-    init(city: String, api: StationAPI = MockStationAPI()) {
+    init(city: String, api: StationAPI) {
         self.city = city
         self.api = api
     }
@@ -59,10 +35,13 @@ final class StationSelectionViewModel: ObservableObject {
         }
     }
 
+    // Привязано к .searchable
     func setSearchText(_ text: String) {
         searchText = text
         debounceSearch(query: text)
     }
+
+    // MARK: - Поиск
 
     private func debounceSearch(query: String) {
         searchTask?.cancel()
@@ -81,7 +60,7 @@ final class StationSelectionViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         searchTask = Task { [weak self] in
-        await self?.search(query: query)
+            await self?.search(query: query)
         }
     }
 
@@ -91,7 +70,14 @@ final class StationSelectionViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            let list = try await api.fetchStations(city: city, matching: query)
+            let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+            let list: [StationRef]
+            if trimmed.isEmpty {
+                list = try await api.railStations(in: city)
+            } else {
+                list = try await api.suggest(in: city, query: trimmed)
+            }
+
             try Task.checkCancellation()
             self.stations = list
         } catch is CancellationError {

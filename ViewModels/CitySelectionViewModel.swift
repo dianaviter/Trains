@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: - Модель
-struct City: Identifiable, Hashable {
+struct City: Identifiable, Hashable, Sendable {
     var id: String { name }
     let name: String
 }

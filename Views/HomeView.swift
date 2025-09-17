@@ -6,9 +6,38 @@
 //
 
 import SwiftUI
+import OpenAPIURLSession
 
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
+
+    // Справочник станций
+    private let stationAPI: any StationAPI
+    // Реальный API расписания по кодам
+    private let carrierAPI: any CarrierAPI
+
+    init() {
+        // Общий клиент OpenAPI
+        let client = Client(
+            serverURL: try! Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
+
+        // Станции (справочник)
+        let allStationsService = AllStationsService(
+            client: client,
+            apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
+        )
+        let directory = AllStationsDirectory(service: allStationsService)
+        self.stationAPI = RealStationAPI(directory: directory)
+
+        // Расписание между станциями (по кодам)
+        let scheduleService = SchedualBetweenStationsService(
+            client: client,
+            apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
+        )
+        self.carrierAPI = RealCarrierAPI(scheduleService: scheduleService)
+    }
 
     var body: some View {
         NavigationStack {
@@ -88,7 +117,9 @@ struct HomeView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
 
-// MARK: - Navigation (биндимся к VM-флагам)
+            // MARK: - Навигация
+
+            // Выбор города «Откуда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingFrom },
@@ -101,18 +132,23 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
+            // Выбор станции «Откуда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingFromStation },
                     set: { vm.isSelectingFromStation = $0 }
                 )
             ) {
-                StationSelectionView(city: vm.selectedFromCity) { station in
-                    vm.selectFromStation(station)
+                StationSelectionView(
+                    city: vm.selectedFromCity.isEmpty ? "Москва" : vm.selectedFromCity,
+                    api: stationAPI
+                ) { s in
+                    vm.selectFromStation(s)
                 }
                 .toolbar(.hidden, for: .tabBar)
             }
 
+            // Выбор города «Куда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingTo },
@@ -125,28 +161,40 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
+            // Выбор станции «Куда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingToStation },
                     set: { vm.isSelectingToStation = $0 }
                 )
             ) {
-                StationSelectionView(city: vm.selectedToCity) { station in
-                    vm.selectToStation(station)
+                StationSelectionView(
+                    city: vm.selectedToCity.isEmpty ? "Москва" : vm.selectedToCity,
+                    api: stationAPI
+                ) { s in
+                    vm.selectToStation(s)
                 }
                 .toolbar(.hidden, for: .tabBar)
             }
 
+            // Список рейсов
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isShowingCarriers },
                     set: { vm.isShowingCarriers = $0 }
                 )
             ) {
-                CarrierListView(fromText: vm.fromText, toText: vm.toText)
-                    .toolbar(.hidden, for: .tabBar)
+                CarrierListView(
+                    fromText: vm.fromText,
+                    toText: vm.toText,
+                    fromKey: .init(station: vm.fromSelected?.code, settlement: vm.fromSelected?.settlementCode),
+                    toKey:   .init(station: vm.toSelected?.code,   settlement: vm.toSelected?.settlementCode),
+                    api: carrierAPI
+                )
+                .toolbar(.hidden, for: .tabBar)
             }
 
+            // Stories
             .fullScreenCover(
                 isPresented: Binding(
                     get: { vm.showStories },
