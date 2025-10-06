@@ -8,22 +8,35 @@
 import SwiftUI
 import OpenAPIURLSession
 
+// MARK: - Helpers for display
+
+private extension String {
+    func removingTrailingParentheses() -> String {
+        var result = self
+        while let range = result.range(of: #"\s*\([^()]*\)$"#, options: .regularExpression) {
+            result.removeSubrange(range)
+        }
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var normalizedForCompare: String {
+        self.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+}
+
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
 
-    // Справочник станций
     private let stationAPI: any StationAPI
-    // Реальный API расписания по кодам
     private let carrierAPI: any CarrierAPI
 
     init() {
-        // Общий клиент OpenAPI
         let client = Client(
             serverURL: try! Servers.Server1.url(),
             transport: URLSessionTransport()
         )
 
-        // Станции (справочник)
         let allStationsService = AllStationsService(
             client: client,
             apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
@@ -31,7 +44,6 @@ struct HomeView: View {
         let directory = AllStationsDirectory(service: allStationsService)
         self.stationAPI = RealStationAPI(directory: directory)
 
-        // Расписание между станциями (по кодам)
         let scheduleService = SchedualBetweenStationsService(
             client: client,
             apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
@@ -54,52 +66,56 @@ struct HomeView: View {
                         .padding(.top)
 
                         HStack {
-                            VStack(spacing: 0) {
-                                Button {
-                                    vm.startSelectingFrom()
-                                } label: {
-                                    HStack {
-                                        Text(vm.fromText.isEmpty ? "Откуда" : vm.fromText)
-                                            .foregroundColor(vm.fromText.isEmpty ? .gray : .black)
-                                        Spacer()
+                                VStack(spacing: 0) {
+                                    // "Откуда"
+                                    Button {
+                                        vm.startSelectingFrom()
+                                    } label: {
+                                        HStack {
+                                            Text(vm.fromText.isEmpty ? "Откуда" : vm.fromText)
+                                                .foregroundColor(vm.fromText.isEmpty ? .gray : .black)
+                                                .lineLimit(1)
+                                            Spacer()
+                                        }
+                                        .padding()
+                                        .background(Color.white)
                                     }
-                                    .padding()
-                                    .background(Color.white)
-                                    .lineLimit(1)
+
+                                    // "Куда"
+                                    Button {
+                                        vm.startSelectingTo()
+                                    } label: {
+                                        HStack {
+                                            Text(vm.toText.isEmpty ? "Куда" : vm.toText)
+                                                .foregroundColor(vm.toText.isEmpty ? .gray : .black)
+                                                .lineLimit(1)
+                                            Spacer()
+                                        }
+                                        .padding()
+                                        .background(Color.white)
+                                    }
                                 }
+                                .background(Color.white)
+                                .cornerRadius(20)
+                                .padding()
 
                                 Button {
-                                    vm.startSelectingTo()
+                                    vm.swapDirections()
                                 } label: {
-                                    HStack {
-                                        Text(vm.toText.isEmpty ? "Куда" : vm.toText)
-                                            .foregroundColor(vm.toText.isEmpty ? .gray : .black)
-                                        Spacer()
-                                    }
-                                    .padding()
-                                    .background(Color.white)
-                                    .lineLimit(1)
+                                    Image("Change direction")
+                                        .padding(12)
+                                        .background(Color.white)
+                                        .clipShape(Circle())
+                                        .shadow(radius: 2)
                                 }
+                                .padding(.trailing, 16)
                             }
-                            .background(Color.white)
-                            .cornerRadius(20)
-                            .padding()
+                            .background(Color.trainsBlue)
+                            .cornerRadius(30)
+                            .padding(.horizontal)
 
-                            Button {
-                                vm.swapDirections()
-                            } label: {
-                                Image("Change direction")
-                                    .padding(12)
-                                    .background(Color.white)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 2)
-                            }
-                            .padding(.trailing, 16)
-                        }
-                        .background(Color.trainsBlue)
-                        .cornerRadius(30)
-                        .padding(.horizontal)
 
+                        // Кнопка "Найти" — логика без изменений
                         if !vm.fromText.isEmpty && !vm.toText.isEmpty {
                             Button("Найти") { vm.searchCarriers() }
                                 .frame(width: 150, height: 60)
@@ -117,9 +133,8 @@ struct HomeView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
 
-            // MARK: - Навигация
+            // MARK: - Навигация (без изменений)
 
-            // Выбор города «Откуда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingFrom },
@@ -132,7 +147,6 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
-            // Выбор станции «Откуда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingFromStation },
@@ -148,7 +162,6 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
-            // Выбор города «Куда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingTo },
@@ -161,7 +174,6 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
-            // Выбор станции «Куда»
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isSelectingToStation },
@@ -177,7 +189,6 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
-            // Список рейсов
             .navigationDestination(
                 isPresented: Binding(
                     get: { vm.isShowingCarriers },
@@ -194,7 +205,6 @@ struct HomeView: View {
                 .toolbar(.hidden, for: .tabBar)
             }
 
-            // Stories
             .fullScreenCover(
                 isPresented: Binding(
                     get: { vm.showStories },

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CarrierListView: View {
-    
+
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: CarrierListViewModel
 
@@ -54,11 +54,9 @@ struct CarrierListView: View {
         }
     }
 
-    // MARK: Pieces
-
-    @ViewBuilder
+    // MARK: - Header: показываем как есть, с переносами по строкам и выравниванием влево
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Button { dismiss() } label: {
                     Image(systemName: "chevron.left")
@@ -67,20 +65,18 @@ struct CarrierListView: View {
                 }
                 Spacer()
             }
-            .padding(.bottom, 16)
+            .padding(.bottom, 4)
 
-            // проще для type-checker, чем одна большая конкатенация
-            HStack(spacing: 0) {
-                Text(vm.fromText)
-                Text(" → ")
-                Text(vm.toText)
-            }
-            .foregroundColor(.trainsBlack)
-            .font(.system(size: 24, weight: .bold))
+            Text("\(vm.fromText) → \(vm.toText)")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.trainsBlack)
+                .multilineTextAlignment(.leading)   // переносы разрешены
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
     }
 
+    // MARK: - Content
     @ViewBuilder
     private var content: some View {
         VStack(spacing: 8) {
@@ -91,7 +87,6 @@ struct CarrierListView: View {
             } else if vm.filteredCarriers.isEmpty {
                 emptyView
             } else {
-                // Явный id упрощает вывод типов
                 ForEach(vm.filteredCarriers, id: \.id) { c in
                     CarrierRowView(
                         logo: c.logo,
@@ -108,8 +103,7 @@ struct CarrierListView: View {
         .padding(.horizontal)
         .padding(.bottom, 80)
     }
-    
-    
+
     struct CarrierRowView: View {
         let logo: String
         let date: String
@@ -118,7 +112,7 @@ struct CarrierListView: View {
         let duration: String
         let arrival: String
         let onCarrierTap: () -> Void
-        
+
         var body: some View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 12) {
@@ -128,14 +122,14 @@ struct CarrierListView: View {
                         .padding(.bottom, 16)
                         .contentShape(Rectangle())
                         .onTapGesture { onCarrierTap() }
-                    
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text(logoName(for: logo))
                             .font(.system(size: 17))
                             .foregroundColor(.black)
                             .contentShape(Rectangle())
                             .onTapGesture { onCarrierTap() }
-                        
+
                         if let note = transferNote {
                             Text(note)
                                 .font(.system(size: 12))
@@ -143,33 +137,21 @@ struct CarrierListView: View {
                         }
                     }
                     .padding(.bottom, 16)
-                    
+
                     Spacer()
-                    
+
                     Text(date)
                         .font(.system(size: 12))
                         .foregroundColor(.black)
                         .padding(.bottom, 25)
                 }
-                
+
                 HStack {
                     Text(departure)
                         .font(.system(size: 17))
-                    
-                    ZStack {
-                        Rectangle()
-                            .frame(height: 1)
-                            .foregroundColor(.gray)
-                        
-                        Text(duration)
-                            .font(.system(size: 12))
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 4)
-                            .background(Color.trainsLightGray)
-                    }
-                    .frame(height: 20)
-                    .padding(.horizontal, 8)
-                    
+
+                    ZstackDuration(duration)
+
                     Text(arrival)
                         .font(.system(size: 17))
                 }
@@ -179,7 +161,7 @@ struct CarrierListView: View {
             .background(Color.trainsLightGray)
             .cornerRadius(24)
         }
-        
+
         private func logoName(for imageName: String) -> String {
             switch imageName {
             case "rzd":           return "РЖД"
@@ -187,6 +169,23 @@ struct CarrierListView: View {
             case "uralLogistics": return "Урал логистика"
             default:              return "Перевозчик"
             }
+        }
+
+        @ViewBuilder
+        private func ZstackDuration(_ duration: String) -> some View {
+            ZStack {
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray)
+
+                Text(duration)
+                    .font(.system(size: 12))
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 4)
+                    .background(Color.trainsLightGray)
+            }
+            .frame(height: 20)
+            .padding(.horizontal, 8)
         }
     }
 

@@ -11,7 +11,6 @@ import SwiftUI
 // MARK: - API (абстракция сетевого слоя)
 protocol HomeAPI {
     func fetchStories() async throws -> [Story]
-
 }
 
 struct MockHomeAPI: HomeAPI {
@@ -30,15 +29,17 @@ struct MockHomeAPI: HomeAPI {
 final class HomeViewModel: ObservableObject {
 
     // MARK: - Ввод/вывод (публичные данные экрана)
-    @Published var fromText: String = ""
-    @Published var toText: String = ""
+    @Published var fromText: String = ""          // отображение в Home: "Город (Станция)"
+    @Published var toText: String = ""            // отображение в Home: "Город (Станция)"
 
-    @Published var selectedFromCity: String = ""
-    @Published var selectedToCity: String = ""
+    @Published var selectedFromCity: String = ""  // выбранный город "Откуда"
+    @Published var selectedToCity: String = ""    // выбранный город "Куда"
+
+    @Published var fromSelected: StationRef?      // выбранная станция "Откуда"
+    @Published var toSelected: StationRef?        // выбранная станция "Куда"
+
     @Published var fromCode: String?
     @Published var toCode: String?
-    @Published var fromSelected: StationRef?
-    @Published var toSelected: StationRef?
 
     @Published var isSelectingFrom: Bool = false
     @Published var isSelectingTo: Bool = false
@@ -65,13 +66,9 @@ final class HomeViewModel: ObservableObject {
 
     func selectFromCity(_ city: String) {
         selectedFromCity = city
+        // открываем выбор станции
         isSelectingFrom = false
         isSelectingFromStation = true
-    }
-
-    func selectFromStation(_ station: String) {
-        fromText = "\(selectedFromCity) (\(station))"
-        isSelectingFromStation = false
     }
 
     func selectToCity(_ city: String) {
@@ -80,13 +77,44 @@ final class HomeViewModel: ObservableObject {
         isSelectingToStation = true
     }
 
-    func selectToStation(_ station: String) {
-        toText = "\(selectedToCity) (\(station))"
+    /// Выбрали станцию "Откуда" (из StationSelectionView)
+    func selectFromStation(_ s: StationRef) {
+        fromSelected = s
+        selectedFromCity = s.city.isEmpty ? selectedFromCity : s.city
+        fromText = formatted(city: selectedFromCity, stationTitle: s.title)
+        isSelectingFromStation = false
+    }
+
+    /// Выбрали станцию "Куда" (из StationSelectionView)
+    func selectToStation(_ s: StationRef) {
+        toSelected = s
+        selectedToCity = s.city.isEmpty ? selectedToCity : s.city
+        toText = formatted(city: selectedToCity, stationTitle: s.title)
         isSelectingToStation = false
     }
 
+    /// Поддержка старого пути, если где-то зовётся через строку
+    func selectFromStation(_ station: String) {
+        fromSelected = nil
+        fromText = formatted(city: selectedFromCity, stationTitle: station)
+        isSelectingFromStation = false
+    }
+
+    /// Поддержка старого пути, если где-то зовётся через строку
+    func selectToStation(_ station: String) {
+        toSelected = nil
+        toText = formatted(city: selectedToCity, stationTitle: station)
+        isSelectingToStation = false
+    }
+
+    /// Поменять направления местами (город + станция), затем пересобрать тексты
     func swapDirections() {
-        swap(&fromText, &toText)
+        swap(&selectedFromCity, &selectedToCity)
+        swap(&fromSelected, &toSelected)
+        swap(&fromCode, &toCode)
+
+        fromText = formatted(city: selectedFromCity, stationTitle: fromSelected?.title)
+        toText   = formatted(city: selectedToCity,   stationTitle: toSelected?.title)
     }
 
     func searchCarriers() {
@@ -110,18 +138,25 @@ final class HomeViewModel: ObservableObject {
     }
 }
 
-extension HomeViewModel {
-    func selectFromStation(_ s: StationRef) {
-        fromSelected = s
-        fromText = s.title
-        selectedFromCity = s.city
-        isSelectingFromStation = false
-    }
+// MARK: - Приватная логика форматирования
+private extension HomeViewModel {
+    /// Формирует строку вида "Город (Станция)".
+    /// - Если станция содержит хвосты в скобках — они обрезаются (например, "(МЦК)", "(Москва)").
+    /// - Если город и станция совпадают — выводится один город.
+    /// - Если чего-то нет — показывается то, что есть.
+    func formatted(city: String, stationTitle: String?) -> String {
+        let cityTrim = city.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    func selectToStation(_ s: StationRef) {
-        toSelected = s
-        toText = s.title
-        selectedToCity = s.city
-        isSelectingToStation = false
+        var st = (stationTitle ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        // Срезаем все завершающие группы вида " (…)" у станции (например: "Андроновка (МЦК) (Москва)" -> "Андроновка")
+        while let range = st.range(of: #"\s*\([^()]*\)$"#, options: .regularExpression) {
+            st.removeSubrange(range)
+        }
+        let stTrim = st.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if cityTrim.isEmpty && stTrim.isEmpty { return "" }
+        if cityTrim.isEmpty { return stTrim }
+        if stTrim.isEmpty || cityTrim.lowercased() == stTrim.lowercased() { return cityTrim }
+        return "\(cityTrim) (\(stTrim))"
     }
 }

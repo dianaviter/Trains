@@ -3,10 +3,15 @@ import Foundation
 
 struct StationRef: Hashable, Identifiable {
     var id: String { code }
-    let title: String           // показываем в UI
-    let code: String            // station yandex_code / code
-    let city: String            // название поселения (для UI)
-    let settlementCode: String? // <-- ДОБАВИЛИ: код поселения (город)
+    let title: String
+    let code: String
+    let city: String
+    let settlementCode: String?
+}
+
+extension StationRef {
+    static func == (lhs: StationRef, rhs: StationRef) -> Bool { lhs.code == rhs.code }
+    func hash(into hasher: inout Hasher) { hasher.combine(code) }
 }
 
 protocol StationAPI {
@@ -76,29 +81,53 @@ struct RealStationAPI: StationAPI {
     private func makeDisplayName(station st: Components.Schemas.Station,
                                  settlement: Components.Schemas.Settlement,
                                  cityKey: String) -> String {
-        let name = (st.title ?? st.popular_title ?? st.short_title ?? "").trimmed()
-        var title = name
+        let cityName = (settlement.title ?? "").trimmed()
+        let cityNorm = normalize(cityName)
 
-        // Если это не сам «город-запрос», добавим район в скобках
-        if normalize(settlement.title ?? "") != cityKey {
-            let town = (settlement.title ?? "").trimmed()
-            if !town.isEmpty, !title.localizedCaseInsensitiveContains(town) {
-                title += " (\(town))"
+        let candidates = [
+            st.popular_title?.trimmed(),
+            st.short_title?.trimmed(),
+            st.title?.trimmed()
+        ].compactMap { $0 }.filter { !$0.isEmpty }
+
+        var best = candidates.first { normalize($0) != cityNorm } ?? (st.title ?? "").trimmed()
+
+        if normalize(best) == cityNorm {
+            if let alt = ([st.popular_title, st.short_title]
+                .compactMap { $0?.trimmed() }
+                .first(where: { !$0.isEmpty && normalize($0) != cityNorm })) {
+                best = "\(best) \(alt)"
             }
         }
-        return title
+
+        if !cityName.isEmpty,
+           normalize(cityName) != cityKey,
+           !best.localizedCaseInsensitiveContains(cityName) {
+            best += " (\(cityName))"
+        }
+
+        return best
     }
 
     private func isRailStation(_ st: Components.Schemas.Station) -> Bool {
-        let tr = (st.transport_type ?? "").lowercased()
+        let tr  = (st.transport_type ?? "").lowercased()
         let stt = (st.station_type ?? "").lowercased()
 
         if stt.contains("bus") || stt.contains("underground") || stt.contains("metro")
             || stt.contains("trolley") || stt.contains("tram")
-            || stt.contains("river") || stt.contains("sea") { return false }
+            || stt.contains("river") || stt.contains("sea")
+            || tr  == "bus" || tr == "metro" { return false }
 
-        if tr == "train" || tr == "suburban" { return true }
-        return stt.contains("train") || stt.contains("rail") || stt.contains("platform")
+        let railTypeHints = [
+            "train", "rail", "railway",
+            "station", "train_station",
+            "platform", "terminal",
+            "commuter", "commuter_rail", "suburban"
+        ]
+        if railTypeHints.contains(where: { stt.contains($0) }) { return true }
+        if ["train", "suburban", "rail", "commuter_rail"].contains(tr) { return true }
+
+        return false
     }
 
     private func cityCoverage(for rawCity: String) -> [String] {

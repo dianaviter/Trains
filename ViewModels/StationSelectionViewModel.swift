@@ -9,10 +9,8 @@ import Foundation
 
 @MainActor
 final class StationSelectionViewModel: ObservableObject {
-    // ввод пользователя
     @Published var searchText: String = ""
 
-    // результат поиска — уже не [String], а [StationRef]
     @Published var stations: [StationRef] = []
 
     @Published var isLoading: Bool = false
@@ -35,7 +33,6 @@ final class StationSelectionViewModel: ObservableObject {
         }
     }
 
-    // Привязано к .searchable
     func setSearchText(_ text: String) {
         searchText = text
         debounceSearch(query: text)
@@ -71,15 +68,16 @@ final class StationSelectionViewModel: ObservableObject {
 
         do {
             let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-            let list: [StationRef]
+            let result: [StationRef]
             if trimmed.isEmpty {
-                list = try await api.railStations(in: city)
+                let list = try await loadFullListForCity()
+                result = list
             } else {
-                list = try await api.suggest(in: city, query: trimmed)
+                result = try await api.suggest(in: city, query: trimmed)
             }
 
             try Task.checkCancellation()
-            self.stations = list
+            self.stations = sortStations(deduplicated(result))
         } catch is CancellationError {
             return
         } catch {
@@ -92,5 +90,53 @@ final class StationSelectionViewModel: ObservableObject {
                 self.errorMessage = "Не удалось загрузить станции"
             }
         }
+    }
+
+    // MARK: - Helpers
+
+    private func loadFullListForCity() async throws -> [StationRef] {
+        async let baseA: [StationRef] = api.railStations(in: city)
+        async let baseB: [StationRef] = (try? await api.suggest(in: city, query: "")) ?? []
+
+        var combined = try await (baseA + baseB)
+
+        let keywords = [
+            "вокзал", "терминал", "станция", "пасс", "пасс.",
+            "terminal", "station", "rail", "railway"
+        ]
+        for key in keywords {
+            if let extra = try? await api.suggest(in: city, query: key) {
+                combined.append(contentsOf: extra)
+            }
+        }
+        return combined
+    }
+
+    private func deduplicated(_ items: [StationRef]) -> [StationRef] {
+        var seenByCode  = Set<String>()
+        var seenByTitle = Set<String>()
+        var out: [StationRef] = []
+        out.reserveCapacity(items.count)
+
+        for s in items {
+            let code = (s.code as String?) ?? ""
+            if !code.isEmpty {
+                if seenByCode.insert(code).inserted {
+                    out.append(s)
+                }
+            } else {
+                let key = s.title
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased()
+                if seenByTitle.insert(key).inserted {
+                    out.append(s)
+                }
+            }
+        }
+        return out
+    }
+
+    private func sortStations(_ items: [StationRef]) -> [StationRef] {
+        items.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
     }
 }

@@ -7,12 +7,24 @@
 
 import SwiftUI
 
+private extension String {
+    func removingTrailingParentheses() -> String {
+        var result = self
+        while let range = result.range(of: #"\s*\([^()]*\)$"#, options: .regularExpression) {
+            result.removeSubrange(range)
+        }
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
 struct StationSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: StationSelectionViewModel
+
     private let city: String
     private let onSelect: (StationRef) -> Void
     private let api: any StationAPI
-    
+
     init(city: String,
          api: any StationAPI,
          onSelect: @escaping (StationRef) -> Void) {
@@ -23,92 +35,90 @@ struct StationSelectionView: View {
     }
 
     var body: some View {
-        Group {
+        List {
             if vm.isLoading {
-                loadingView
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    ProgressView()
+                    Text("Ищем станции…")
+                        .foregroundColor(.trainsBlack)
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             } else if let message = vm.errorMessage {
-                errorView(message)
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.trainsBlack)
+                    Button("Повторить") {
+                        vm.setSearchText(vm.searchText)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             } else if vm.stations.isEmpty {
-                emptyView
+                VStack(spacing: 0) {
+                    Spacer().frame(height: 176)
+                    Text("Станции не найдены")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.trainsBlack)
+                        .frame(maxWidth: .infinity)
+                }
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             } else {
-                stationsList
-            }
-        }
-        .navigationTitle(city)
-        .navigationBarTitleDisplayMode(.inline)
-        .task { vm.onAppear() }
-        .searchable(text: $vm.searchText, placement: .navigationBarDrawer(displayMode: .always))
-        .onChange(of: vm.searchText) { vm.setSearchText($0) }
-    }
-}
-
-// MARK: - Subviews
-
-private extension StationSelectionView {
-    var loadingView: some View {
-        List {
-            VStack(spacing: 12) {
-                Spacer().frame(height: 160)
-                ProgressView()
-                Text("Ищем станции…")
-                    .foregroundColor(.primary)
-            }
-            .frame(maxWidth: .infinity)
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-        }
-        .listStyle(.plain)
-    }
-
-    func errorView(_ message: String) -> some View {
-        List {
-            VStack(spacing: 12) {
-                Spacer().frame(height: 160)
-                Text(message).multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-        }
-        .listStyle(.plain)
-    }
-
-    var emptyView: some View {
-        List {
-            VStack(spacing: 12) {
-                Spacer().frame(height: 160)
-                Text("Станции не найдены")
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .listRowSeparator(.hidden)
-            .listRowBackground(Color.clear)
-        }
-        .listStyle(.plain)
-    }
-
-    var stationsList: some View {
-        List(vm.stations) { st in
-            Button {
-                onSelect(st)
-            } label: {
-                HStack {
-                    Text(st.title)
-                    Spacer(minLength: 8)
-                    // при отладке удобно видеть код
-                    Text(st.code)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                ForEach(vm.stations) { st in
+                    Button {
+                        onSelect(st)
+                    } label: {
+                        HStack {
+                            Text(st.title.removingTrailingParentheses())
+                                .foregroundColor(.trainsBlack)
+                                .padding(.vertical, 10)
+                            Spacer(minLength: 8)
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.trainsBlack)
+                        }
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
                 }
             }
         }
         .listStyle(.plain)
+        .background(Color.clear)
+        .scrollContentBackground(.hidden)
+        .searchable(
+            text: Binding(
+                get: { vm.searchText },
+                set: { vm.setSearchText($0) }
+            ),
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Введите запрос"
+        )
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.trainsBlack)
+                }
+            }
+            ToolbarItem(placement: .principal) {
+                Text("Выбор станции")
+                    .font(.headline)
+                    .foregroundColor(.trainsBlack)
+            }
+        }
+        .onAppear { vm.onAppear() }
     }
 }
 
-//
 //#Preview {
-//    StationSelectionView(city: "Москва") { selectedStation in
-//        print("Selected station: \(selectedStation)")
-//    }
+//    StationSelectionView(city: "Москва",
+//                         api: MockStationAPI(),
+//                         onSelect: { _ in })
 //}
