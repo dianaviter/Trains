@@ -17,8 +17,6 @@ struct RealCarrierAPI: CarrierAPI {
 
     // Сохраним старую сигнатуру на всякий случай — если где-то ещё передаются строки.
     func fetchCarriers(from: String, to: String) async throws -> [Carrier] {
-        // 👉 РЕКОМЕНДАЦИЯ: перестать пользоваться этим методом и всегда
-        // прокидывать fromCode/toCode из селектора станций.
         throw NSError(domain: "RealCarrierAPI", code: 9001,
                       userInfo: [NSLocalizedDescriptionKey: "Передавайте коды станций, а не строки."])
     }

@@ -1,3 +1,11 @@
+//
+//  StationRef.swift
+//  Trains
+//
+//  Created by Diana Viter on 07.10.2025.
+//
+
+
 import Foundation
 
 struct StationRef: Hashable, Identifiable {

@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-private extension String {
-    func removingTrailingParentheses() -> String {
-        var result = self
-        while let range = result.range(of: #"\s*\([^()]*\)$"#, options: .regularExpression) {
-            result.removeSubrange(range)
-        }
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-}
-
 struct StationSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: StationSelectionViewModel
@@ -75,9 +65,11 @@ struct StationSelectionView: View {
                         onSelect(st)
                     } label: {
                         HStack {
-                            Text(st.title.removingTrailingParentheses())
+                            Text(st.title)            // ← больше НЕ режем скобки
                                 .foregroundColor(.trainsBlack)
                                 .padding(.vertical, 10)
+                                .lineLimit(2)           // чтобы не было "…"
+                                .multilineTextAlignment(.leading)
                             Spacer(minLength: 8)
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.trainsBlack)
