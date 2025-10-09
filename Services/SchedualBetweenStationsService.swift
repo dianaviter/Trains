@@ -1,10 +1,11 @@
 //
-//  Untitled.swift
+//  SchedualBetweenStationsService.swift
 //  Trains
 //
 //  Created by Diana Viter on 10.07.2025.
 //
 
+import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
@@ -20,7 +21,7 @@ protocol SchedualBetweenStationsProtocol {
     ) async throws -> SchedualBetweenStations
 }
 
-final class SchedualBetweenStationsService: SchedualBetweenStationsProtocol {
+actor SchedualBetweenStationsService: SchedualBetweenStationsProtocol {
 
     private let client: Client
     private let apikey: String

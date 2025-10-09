@@ -29,8 +29,7 @@ actor RealCityAPI: CityAPI {
         
         return all.filter { $0.name.localizedCaseInsensitiveContains(q) }
     }
-    
-    // MARK: - Маппинг (countries → regions → settlements)
+
     
     private static func extractCities(from allStations: AllStations) -> [City] {
         var names = Set<String>()

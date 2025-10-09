@@ -1,6 +1,6 @@
 import Foundation
 
-struct StationRef: Hashable, Identifiable {
+struct StationRef: Hashable, Identifiable, Sendable {
     var id: String { code }
     let title: String
     let code: String
@@ -13,7 +13,7 @@ extension StationRef {
     func hash(into hasher: inout Hasher) { hasher.combine(code) }
 }
 
-protocol StationAPI {
+protocol StationAPI: Sendable {
     func railStations(in city: String) async throws -> [StationRef]
     func suggest(in city: String, query: String) async throws -> [StationRef]
 }
@@ -84,7 +84,6 @@ struct RealStationAPI: StationAPI {
         return base.filter { normalize($0.title).contains(q) }
     }
 
-    // MARK: helpers
 
     private func makeDisplayName(station st: Components.Schemas.Station,
                                  settlement: Components.Schemas.Settlement,
@@ -121,7 +120,7 @@ struct RealStationAPI: StationAPI {
             if t.contains("вокзал") { s += 100 }
             if t.contains("terminal") || t.contains("station") { s += 40 }
             if t != c { s += 20 }
-            s += min(60, t.count)     // чуть-чуть за «информативность»
+            s += min(60, t.count)
             return s
         }
         return score(n) > score(o)

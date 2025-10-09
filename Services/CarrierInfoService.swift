@@ -1,11 +1,11 @@
 //
-//  Untitled.swift
+//  CarrierInfoService.swift
 //  Trains
 //
 //  Created by Diana Viter on 12.07.2025.
 //
 
-
+import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
@@ -15,8 +15,7 @@ protocol CarrierInfoServiceProtocol {
     func getCarrierInfo(code: String, system: String?) async throws -> CarrierInfo
 }
 
-
-final class CarrierInfoService: CarrierInfoServiceProtocol {
+actor CarrierInfoService: CarrierInfoServiceProtocol {
     
     private let client: Client
     private let apikey: String
@@ -30,7 +29,8 @@ final class CarrierInfoService: CarrierInfoServiceProtocol {
         let response = try await client.getCarrierInfo(query: .init(
             apikey: apikey,
             code: code,
-            system: system))
+            system: system
+        ))
         return try response.ok.body.json
     }
 }

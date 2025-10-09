@@ -1,10 +1,11 @@
 //
-//  Untitled.swift
+//  NearestCityService.swift
 //  Trains
 //
 //  Created by Diana Viter on 12.07.2025.
 //
 
+import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
@@ -14,8 +15,7 @@ protocol NearestCityProtocol {
     func getNearestCity(lat: Double, lng: Double) async throws -> NearestCity
 }
 
-
-final class NearestCityService: NearestCityProtocol {
+actor NearestCityService: NearestCityProtocol {
     
     private let client: Client
     private let apikey: String
@@ -29,7 +29,8 @@ final class NearestCityService: NearestCityProtocol {
         let response = try await client.getNearestCity(query: .init(
             apikey: apikey,
             lat: lat,
-            lng: lng))
+            lng: lng
+        ))
         return try response.ok.body.json
     }
 }

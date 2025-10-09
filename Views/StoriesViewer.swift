@@ -8,7 +8,7 @@
 import SwiftUI
 
 // MARK: - Модель
-struct Story: Identifiable, Hashable {
+struct Story: Identifiable, Hashable, Sendable {
     let id = UUID()
     let imageName: String
     var isViewed: Bool
@@ -157,7 +157,9 @@ struct StoriesViewer: View {
             .ignoresSafeArea(.container, edges: .horizontal)
             .background(Color.black)
         }
-        .onChange(of: currentIndex) { _ in restartProgress() }
+        .onChange(of: currentIndex) {
+            restartProgress()
+        }
         .onDisappear { autoAdvanceWork?.cancel() }
     }
 

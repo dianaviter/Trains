@@ -63,8 +63,9 @@ struct HomeView: View {
                                     HStack {
                                         Text(fromDisplay ?? (vm.fromText.isEmpty ? "Откуда" : vm.fromText))
                                             .foregroundColor((fromDisplay == nil && vm.fromText.isEmpty) ? .gray : .black)
-                                            .lineLimit(2)
                                             .multilineTextAlignment(.leading)
+                                            .lineLimit(nil)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Spacer()
                                     }
                                     .padding()
@@ -75,8 +76,9 @@ struct HomeView: View {
                                     HStack {
                                         Text(toDisplay ?? (vm.toText.isEmpty ? "Куда" : vm.toText))
                                             .foregroundColor((toDisplay == nil && vm.toText.isEmpty) ? .gray : .black)
-                                            .lineLimit(2)
                                             .multilineTextAlignment(.leading)
+                                            .lineLimit(nil)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Spacer()
                                     }
                                     .padding()
@@ -154,12 +156,17 @@ struct HomeView: View {
             .navigationDestination(
                 isPresented: Binding(get: { vm.isShowingCarriers }, set: { vm.isShowingCarriers = $0 })
             ) {
+                let fromDisp = displayText(city: vm.selectedFromCity, stationTitle: vm.fromSelected?.title) ?? vm.fromText
+                let toDisp   = displayText(city: vm.selectedToCity,   stationTitle: vm.toSelected?.title)   ?? vm.toText
+
                 CarrierListView(
                     fromText: vm.fromText,
                     toText: vm.toText,
                     fromKey: .init(station: vm.fromSelected?.code, settlement: vm.fromSelected?.settlementCode),
                     toKey:   .init(station: vm.toSelected?.code,   settlement: vm.toSelected?.settlementCode),
-                    api: carrierAPI
+                    api: carrierAPI,
+                    fromDisplay: fromDisp,
+                    toDisplay: toDisp
                 )
                 .toolbar(.hidden, for: .tabBar)
             }
@@ -177,23 +184,26 @@ struct HomeView: View {
         .task { await vm.loadStories() }
     }
 
-    /// Гарантированно отдаёт «Город (Станция)»,
-    /// в т.ч. когда stationTitle уже вида «Город (Что-то)».
     private func displayText(city rawCity: String, stationTitle rawStation: String?) -> String? {
         let city = rawCity.trimmed()
-        let st = (rawStation ?? "").trimmed()
+        var st = (rawStation ?? "").trimmed()
+
         if city.isEmpty && st.isEmpty { return nil }
         if city.isEmpty { return st }
         if st.isEmpty { return city }
 
-        if let l = st.firstIndex(of: "("), let r = st.lastIndex(of: ")"), l < r {
-            let prefix = String(st[..<l]).trimmed()
-            let inside = String(st[st.index(after: l)..<r]).trimmed()
-            if prefix.norm == city.norm, !inside.isEmpty {
-                return "\(city) (\(inside))"
+        while let range = st.range(of: #"\s*\(([^()]*)\)\s*$"#, options: .regularExpression) {
+            let innerStart = st.index(after: range.lowerBound)
+            let innerEnd   = st.index(before: range.upperBound)
+            let inside = String(st[innerStart..<innerEnd]).trimmed()
+            if inside.norm == city.norm {
+                st.removeSubrange(range)
+            } else {
+                break
             }
         }
-        return "\(city) (\(st))"
+
+        return "\(city) (\(st.trimmed()))"
     }
 }
 

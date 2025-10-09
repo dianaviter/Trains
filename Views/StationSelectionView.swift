@@ -36,6 +36,7 @@ struct StationSelectionView: View {
                 .frame(maxWidth: .infinity)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else if let message = vm.errorMessage {
                 VStack(spacing: 12) {
                     Spacer().frame(height: 160)
@@ -49,6 +50,7 @@ struct StationSelectionView: View {
                 .frame(maxWidth: .infinity)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else if vm.stations.isEmpty {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 176)
@@ -59,16 +61,15 @@ struct StationSelectionView: View {
                 }
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else {
                 ForEach(vm.stations) { st in
-                    Button {
-                        onSelect(st)
-                    } label: {
+                    Button { onSelect(st) } label: {
                         HStack {
-                            Text(st.title)            // ← больше НЕ режем скобки
+                            Text(cleanTitle(st.title, city: st.city.isEmpty ? city : st.city))
                                 .foregroundColor(.trainsBlack)
                                 .padding(.vertical, 10)
-                                .lineLimit(2)           // чтобы не было "…"
+                                .lineLimit(3)
                                 .multilineTextAlignment(.leading)
                             Spacer(minLength: 8)
                             Image(systemName: "chevron.right")
@@ -84,13 +85,12 @@ struct StationSelectionView: View {
         .background(Color.clear)
         .scrollContentBackground(.hidden)
         .searchable(
-            text: Binding(
-                get: { vm.searchText },
-                set: { vm.setSearchText($0) }
-            ),
+            text: Binding(get: { vm.searchText }, set: { vm.setSearchText($0) }),
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Введите запрос"
         )
+        .navigationTitle("Выбор станции")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -99,18 +99,47 @@ struct StationSelectionView: View {
                         .foregroundColor(.trainsBlack)
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text("Выбор станции")
-                    .font(.headline)
-                    .foregroundColor(.trainsBlack)
-            }
         }
         .onAppear { vm.onAppear() }
     }
 }
 
-//#Preview {
-//    StationSelectionView(city: "Москва",
-//                         api: MockStationAPI(),
-//                         onSelect: { _ in })
-//}
+// MARK: - Helpers
+
+private func cleanTitle(_ title: String, city: String) -> String {
+    var out = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    let cityNorm = normalize(city)
+
+    func stripOneTail(_ s: inout String) -> Bool {
+        guard let range = s.range(of: #"\s*\(([^()]*)\)\s*$"#, options: .regularExpression) else {
+            return false
+        }
+        let innerStart = s.index(after: range.lowerBound)
+        let innerEnd   = s.index(before: range.upperBound)
+        let insideRaw  = String(s[innerStart..<innerEnd])
+        let insideNorm = normalize(
+            insideRaw
+                .replacingOccurrences(of: "г.", with: "", options: [.caseInsensitive, .regularExpression])
+                .replacingOccurrences(of: "город", with: "", options: [.caseInsensitive, .regularExpression])
+        )
+
+        if insideNorm == cityNorm {
+            s.removeSubrange(range)
+            s = s.trimmingCharacters(in: .whitespacesAndNewlines)
+            return true
+        }
+        return false
+    }
+    while stripOneTail(&out) {}
+
+    return out
+}
+
+private func normalize(_ s: String) -> String {
+    s.folding(options: [.diacriticInsensitive, .caseInsensitive],
+              locale: Locale(identifier: "ru_RU"))
+     .replacingOccurrences(of: "ё", with: "е")
+     .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+     .trimmingCharacters(in: .whitespacesAndNewlines)
+}
+

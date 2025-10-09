@@ -7,9 +7,8 @@
 
 import Foundation
 
-// MARK: - Storage (Model)
 protocol SettingsStore {
-   var isDarkMode: Bool { get set }
+    var isDarkMode: Bool { get set }
 }
 
 final class UserDefaultsSettingsStore: SettingsStore {
@@ -27,12 +26,10 @@ final class UserDefaultsSettingsStore: SettingsStore {
     }
 }
 
-// MARK: - Routing
 enum SettingsRoute: Hashable {
     case userAgreement
 }
 
-// MARK: - ViewModel
 @MainActor
 final class SettingsViewModel: ObservableObject {
     @Published var isDarkMode: Bool
@@ -46,10 +43,22 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func toggleDarkMode(_ value: Bool) {
-        isDarkMode = value
-        store.isDarkMode = value
+        Task { @MainActor in
+            isDarkMode = value
+            await saveDarkMode(value)
+        }
     }
 
     func openAgreement() { route = .userAgreement }
     func closeRoute() { route = nil }
+
+    func refreshSettings() async {
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        isDarkMode = store.isDarkMode
+    }
+
+    private func saveDarkMode(_ value: Bool) async {
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        store.isDarkMode = value
+    }
 }

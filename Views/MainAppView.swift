@@ -12,17 +12,12 @@ struct MainAppView: View {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(resource: .trainsWhite)
-        
         appearance.shadowColor = .trainsGray
         
         UITabBar.appearance().standardAppearance = appearance
-        if #available(iOS 15.0, *) {
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
-        
+        UITabBar.appearance().scrollEdgeAppearance = appearance
         UITabBar.appearance().tintColor = UIColor(Color.trainsBlack)
     }
-    
     
     var body: some View {
         TabView {

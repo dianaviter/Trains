@@ -39,6 +39,7 @@ struct CitySelectionView: View {
                 .frame(maxWidth: .infinity)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else if let message = vm.errorMessage {
                 VStack(spacing: 12) {
                     Spacer().frame(height: 160)
@@ -52,6 +53,7 @@ struct CitySelectionView: View {
                 .frame(maxWidth: .infinity)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else if vm.cities.isEmpty {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 176)
@@ -62,6 +64,7 @@ struct CitySelectionView: View {
                 }
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else {
                 ForEach(vm.cities) { city in
                     Button {
@@ -85,13 +88,12 @@ struct CitySelectionView: View {
         .background(Color.clear)
         .scrollContentBackground(.hidden)
         .searchable(
-            text: Binding(
-                get: { vm.searchText },
-                set: { vm.setSearchText($0) }
-            ),
+            text: Binding(get: { vm.searchText }, set: { vm.setSearchText($0) }),
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Введите запрос"
         )
+        .navigationTitle("Выбор города")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -100,15 +102,13 @@ struct CitySelectionView: View {
                         .foregroundColor(.trainsBlack)
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text("Выбор города")
-                    .font(.headline)
-                    .foregroundColor(.trainsBlack)
-            }
         }
-        .onAppear { vm.onAppear() }
+        .task {
+            vm.onAppear()
+        }
     }
 }
+
 
 #Preview {
     CitySelectionView { city in

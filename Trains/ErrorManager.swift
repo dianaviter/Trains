@@ -7,8 +7,10 @@
 
 import Foundation
 
+@MainActor
 final class ErrorManager: ObservableObject {
-    struct PresentedError: Identifiable {
+
+    struct PresentedError: Identifiable, Sendable {
         let id = UUID()
         let type: AppErrorType
     }
@@ -16,11 +18,11 @@ final class ErrorManager: ObservableObject {
     @Published var presentedError: PresentedError?
 
     func show(_ type: AppErrorType) {
-        DispatchQueue.main.async {
-            self.presentedError = .init(type: type)
-        }
+        presentedError = .init(type: type)
     }
 
-    func dismiss() { presentedError = nil }
+    func dismiss() {
+        presentedError = nil
+    }
 }
 

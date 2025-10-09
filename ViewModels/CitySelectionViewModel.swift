@@ -14,7 +14,7 @@ struct City: Identifiable, Hashable, Sendable {
 }
 
 // MARK: - Сетевой слой (абстракция)
-protocol CityAPI {
+protocol CityAPI: Sendable {
     func fetchCities(matching query: String) async throws -> [City]
 }
 
@@ -39,7 +39,7 @@ struct MockCityAPI: CityAPI {
     }
 }
 
-// MARK: - ViewModel (UI не меняем)
+
 @MainActor
 final class CitySelectionViewModel: ObservableObject {
 

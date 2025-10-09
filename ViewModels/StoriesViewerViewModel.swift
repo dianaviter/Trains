@@ -10,41 +10,19 @@ import SwiftUI
 
 @MainActor
 final class StoriesViewerViewModel: ObservableObject {
-    @Published var stories: [Story]
-    @Published var currentIndex: Int
-    @Published var didFinish = false
-
-    @Published private(set) var startDate: Date = .now
-    let stepDuration: TimeInterval
+    @Published var stories: [Story] = []
+    @Published var currentIndex = 0
 
     private var progressTask: Task<Void, Never>?
-
-    init(stories: [Story], currentIndex: Int, stepDuration: TimeInterval = 3.0) {
-        self.stories = stories
-        self.currentIndex = currentIndex
-        self.stepDuration = stepDuration
-    }
+    private let stepDuration: TimeInterval = 3
+    private(set) var startDate: Date = .now
 
     deinit { progressTask?.cancel() }
 
-    func start() {
-        markCurrentViewed()
-        restartTimer()
-    }
-
-    func stop() {
-        progressTask?.cancel()
-        progressTask = nil
-    }
-
-    func restart() {
-        markCurrentViewed()
-        restartTimer()
-    }
-
     func next() {
-        guard currentIndex < stories.count - 1 else { didFinish = true; return }
+        guard currentIndex < stories.count - 1 else { return }
         currentIndex += 1
+        markCurrentViewed()
         restartTimer()
     }
 
@@ -54,14 +32,15 @@ final class StoriesViewerViewModel: ObservableObject {
         restartTimer()
     }
 
-    private func restartTimer() {
+    func restartTimer() {
         startDate = .now
         progressTask?.cancel()
+
+        let ns = UInt64(stepDuration * 1_000_000_000)
         progressTask = Task { [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(nanoseconds: UInt64(stepDuration * 1_000_000_000))
-            if Task.isCancelled { return }
-            await self.next()
+            try? await Task.sleep(nanoseconds: ns)
+            guard !Task.isCancelled else { return }
+            await MainActor.run { self?.next() }
         }
     }
 

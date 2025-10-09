@@ -1,16 +1,23 @@
 import SwiftUI
 
+import SwiftUI
+
 struct CarrierListView: View {
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var vm: CarrierListViewModel
+
+    private let fromDisplay: String
+    private let toDisplay: String
 
     init(
         fromText: String,
         toText: String,
         fromKey: PlaceKey,
         toKey: PlaceKey,
-        api: CarrierAPI
+        api: CarrierAPI,
+        fromDisplay: String,
+        toDisplay: String
     ) {
         _vm = StateObject(
             wrappedValue: CarrierListViewModel(
@@ -21,10 +28,8 @@ struct CarrierListView: View {
                 api: api
             )
         )
-        print("CarrierListView init with:",
-              "fromText=\(fromText)", "toText=\(toText)",
-              "fromKey=\(fromKey.station ?? fromKey.settlement ?? "nil")",
-              "toKey=\(toKey.station ?? toKey.settlement ?? "nil")")
+        self.fromDisplay = fromDisplay
+        self.toDisplay = toDisplay
     }
 
     var body: some View {
@@ -54,7 +59,6 @@ struct CarrierListView: View {
         }
     }
 
-    // MARK: - Header: показываем как есть, с переносами по строкам и выравниванием влево
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -67,11 +71,12 @@ struct CarrierListView: View {
             }
             .padding(.bottom, 4)
 
-            Text("\(vm.fromText) → \(vm.toText)")
+            Text("\(fromDisplay) → \(toDisplay)")
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.trainsBlack)
-                .multilineTextAlignment(.leading)   // переносы разрешены
+                .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(3)
         }
         .padding()
     }

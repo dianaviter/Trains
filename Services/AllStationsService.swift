@@ -11,11 +11,11 @@ import OpenAPIURLSession
 
 typealias AllStations = Components.Schemas.AllStationsResponse
 
-protocol AllStationsProtocol {
+protocol AllStationsProtocol: Sendable {
     func getAllStations() async throws -> AllStations
 }
 
-final class AllStationsService: AllStationsProtocol {
+actor AllStationsService: AllStationsProtocol {
     
     private let client: Client
     private let apikey: String
@@ -27,9 +27,7 @@ final class AllStationsService: AllStationsProtocol {
     
     func getAllStations() async throws -> AllStations {
         let response = try await client.getAllStations(query: .init(apikey: apikey))
-        
         let responseBody = try response.ok.body.html
-        
         let limit = 50 * 1024 * 1024
         let fullData = try await Data(collecting: responseBody, upTo: limit)
 
@@ -43,9 +41,5 @@ final class AllStationsService: AllStationsProtocol {
             }
             throw error
         }
-        
-        let allStations = try JSONDecoder().decode(AllStations.self, from: fullData)
-        
-        return allStations
     }
 }

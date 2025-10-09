@@ -1,10 +1,11 @@
 //
-//  Untitled.swift
+//  RouteStationsService.swift
 //  Trains
 //
 //  Created by Diana Viter on 10.07.2025.
 //
 
+import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
@@ -14,8 +15,7 @@ protocol RouteStationsProtocol {
     func getRouteStations(uid: String) async throws -> RouteStations
 }
 
-
-final class RouteStationsService: RouteStationsProtocol {
+actor RouteStationsService: RouteStationsProtocol {
 
     private let client: Client
     private let apikey: String
@@ -28,7 +28,8 @@ final class RouteStationsService: RouteStationsProtocol {
     func getRouteStations(uid: String) async throws -> RouteStations {
         let response = try await client.getRouteStations(query: .init(
             apikey: apikey,
-            uid: uid))
+            uid: uid
+        ))
         return try response.ok.body.json
     }
 }

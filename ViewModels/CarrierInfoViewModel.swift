@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol CarrierDetailsAPI {
+protocol CarrierDetailsAPI: Sendable {
     func carrierDetails(for name: String) async throws -> CarrierDetails
 }
 

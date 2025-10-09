@@ -6,18 +6,18 @@ struct PlaceKey {
     let settlement: String?
 }
 
-struct Carrier: Identifiable, Hashable {
+struct Carrier: Identifiable, Hashable, Sendable {
     let id = UUID()
     let logo: String
     let date: String
-    let transferNote: String?   // "С пересадкой" если есть пересадки
-    let departure: String       // "HH:mm"
-    let duration: String        // "X ч Y мин"
-    let arrival: String         // "HH:mm"
+    let transferNote: String?
+    let departure: String
+    let duration: String
+    let arrival: String
     let departureTimeCategory: DepartureTime
 }
 
-protocol CarrierAPI {
+protocol CarrierAPI: Sendable {
     func fetchCarriers(fromCode: String, toCode: String, dateYMD: String?) async throws -> [Carrier]
 }
 
@@ -34,7 +34,6 @@ final class CarrierListViewModel: ObservableObject {
         case night, morning, day, evening
     }
 
-    // Детали перевозчика при тапе по логотипу
     struct CarrierDetails: Identifiable, Hashable {
         let id = UUID()
         let name: String
@@ -43,11 +42,8 @@ final class CarrierListViewModel: ObservableObject {
         let phone: String
     }
 
-    // что показываем в шапке
     let fromText: String
     let toText: String
-
-    // НОВОЕ: ключи для запросов
     let fromKey: PlaceKey
     let toKey: PlaceKey
 
@@ -103,7 +99,6 @@ final class CarrierListViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            // Приоритет: код станции → код города (settlement)
             guard let fromCode = fromKey.station ?? fromKey.settlement,
                   let toCode   = toKey.station   ?? toKey.settlement
             else {
@@ -113,8 +108,6 @@ final class CarrierListViewModel: ObservableObject {
                 return
             }
 
-            // ⚡️ Сервер уже вернёт прямые И с пересадками.
-            // Ничего не режем локально.
             let list = try await api.fetchCarriers(fromCode: fromCode, toCode: toCode)
 
             self.allCarriers = list
