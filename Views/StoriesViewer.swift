@@ -8,18 +8,16 @@
 import SwiftUI
 
 // MARK: - Модель
-struct Story: Identifiable, Hashable {
+struct Story: Identifiable, Hashable, Sendable {
     let id = UUID()
     let imageName: String
     var isViewed: Bool
 }
 
 // MARK: - Ячейка в ленте
-
-struct StoryThumb: View {
+struct StoryThumbView: View {
     let story: Story
-    @State private var autoAdvanceWork: DispatchWorkItem?
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Image(story.imageName)
@@ -27,8 +25,11 @@ struct StoryThumb: View {
                 .scaledToFill()
                 .frame(width: 92, height: 140)
                 .clipped()
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(story.isViewed ? Color.clear : Color.trainsBlue, lineWidth: 10))
-            
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(story.isViewed ? Color.clear : Color.trainsBlue, lineWidth: 10)
+                )
+
             Text("Text Text Text Text Text Text Text Text Text")
                 .font(.caption.bold())
                 .foregroundColor(.white)
@@ -48,14 +49,14 @@ struct StoryThumb: View {
 }
 
 // MARK: - Полноэкранный просмотр
-
 struct StoriesViewer: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var stories: [Story]
     @Binding var currentIndex: Int
 
-    @State private var progress: CGFloat = 0
     @State private var autoAdvanceWork: DispatchWorkItem?
+    @State private var startDate: Date = .now
+    private let stepDuration: TimeInterval = 3.0
 
     var body: some View {
         ZStack {
@@ -85,25 +86,28 @@ struct StoriesViewer: View {
                             }
 
                             VStack(spacing: 8) {
-                                HStack(spacing: 6) {
-                                    ForEach(stories.indices, id: \.self) { i in
-                                        ZStack(alignment: .leading) {
-                                            Capsule()
-                                                .fill(.white.opacity(0.35))
+                                TimelineView(.animation) { timeline in
+                                    let elapsed = timeline.date.timeIntervalSince(startDate)
+                                    let p = max(0, min(1, elapsed / stepDuration))
 
-                                            GeometryReader { proxy in
-                                                let w = proxy.size.width
-                                                let fill: CGFloat =
-                                                    i < currentIndex ? w :
-                                                    i > currentIndex ? 0 :
-                                                    w * progress
-                                                
+                                    HStack(spacing: 6) {
+                                        ForEach(stories.indices, id: \.self) { j in
+                                            ZStack(alignment: .leading) {
                                                 Capsule()
-                                                    .fill(Color.trainsBlue)
-                                                    .frame(width: fill)
+                                                    .fill(.white.opacity(0.35))
+                                                GeometryReader { proxy in
+                                                    let w = proxy.size.width
+                                                    let fill: CGFloat =
+                                                        j < currentIndex ? w :
+                                                        j > currentIndex ? 0 :
+                                                        w * p
+                                                    Capsule()
+                                                        .fill(Color.trainsBlue)
+                                                        .frame(width: fill)
+                                                }
                                             }
+                                            .frame(height: 4)
                                         }
-                                        .frame(height: 4)
                                     }
                                 }
 
@@ -153,18 +157,16 @@ struct StoriesViewer: View {
             .ignoresSafeArea(.container, edges: .horizontal)
             .background(Color.black)
         }
-        .onChange(of: currentIndex) { _ in restartProgress() }
+        .onChange(of: currentIndex) {
+            restartProgress()
+        }
         .onDisappear { autoAdvanceWork?.cancel() }
     }
 
     // MARK: - Прогресс / таймер
-
     private func startProgress() {
         autoAdvanceWork?.cancel()
-        progress = 0
-        withAnimation(.linear(duration: 3.0)) {
-            progress = 1
-        }
+        startDate = .now
         let work = DispatchWorkItem {
             if currentIndex < stories.count - 1 {
                 currentIndex += 1
@@ -173,13 +175,13 @@ struct StoriesViewer: View {
             }
         }
         autoAdvanceWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration, execute: work)
     }
 
     private func restartProgress() {
         autoAdvanceWork?.cancel()
         autoAdvanceWork = nil
-        progress = 0
+        startDate = .now
         DispatchQueue.main.async { startProgress() }
     }
 
@@ -196,19 +198,16 @@ struct StoriesViewer: View {
         currentIndex -= 1
     }
 }
-
-
 // MARK: - Лента
-
 struct StoriesStrip: View {
     @Binding var stories: [Story]
     var onSelect: (Int) -> Void
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
                 ForEach(stories.indices, id: \.self) { i in
-                    StoryThumb(story: stories[i])
+                    StoryThumbView(story: stories[i])
                         .onTapGesture { onSelect(i) }
                 }
             }
@@ -218,21 +217,6 @@ struct StoriesStrip: View {
     }
 }
 
-
 #Preview {
-    StoryThumb(story: PreviewContainer().stories[2])
-}
-
-private struct PreviewContainer: View {
-    @State var stories: [Story] = [
-        Story(imageName: "stories1", isViewed: false),
-        Story(imageName: "stories2", isViewed: true),
-        Story(imageName: "stories3", isViewed: true),
-        Story(imageName: "stories4", isViewed: false)
-    ]
-    @State var currentIndex: Int = 0
-    
-    var body: some View {
-        StoriesViewer(stories: $stories, currentIndex: $currentIndex)
-    }
+    StoryThumbView(story: Story(imageName: "stories3", isViewed: false))
 }

@@ -6,27 +6,55 @@
 //
 
 import SwiftUI
+import OpenAPIURLSession
 
 struct CitySelectionView: View {
     let onSelect: (String) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText: String = ""
+    @StateObject private var vm: CitySelectionViewModel
 
-    private let cities = [
-        "Москва", "Санкт Петербург", "Сочи", "Горный воздух",
-        "Краснодар", "Казань", "Омск"
-    ]
+    init(onSelect: @escaping (String) -> Void) {
+        self.onSelect = onSelect
 
-    var filteredCities: [String] {
-        searchText.isEmpty ? cities : cities.filter {
-            $0.localizedCaseInsensitiveContains(searchText)
-        }
+        let client = Client(
+            serverURL: try! Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
+        let service = AllStationsService(client: client, apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed")
+        let api = RealCityAPI(service: service)
+
+        _vm = StateObject(wrappedValue: CitySelectionViewModel(api: api))
     }
 
     var body: some View {
         List {
-            if filteredCities.isEmpty {
+            if vm.isLoading {
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    ProgressView()
+                    Text("Ищем города…")
+                        .foregroundColor(.trainsBlack)
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+
+            } else if let message = vm.errorMessage {
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.trainsBlack)
+                    Button("Повторить") {
+                        vm.setSearchText(vm.searchText)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+
+            } else if vm.cities.isEmpty {
                 VStack(spacing: 0) {
                     Spacer().frame(height: 176)
                     Text("Город не найден")
@@ -36,13 +64,14 @@ struct CitySelectionView: View {
                 }
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else {
-                ForEach(filteredCities, id: \.self) { city in
+                ForEach(vm.cities) { city in
                     Button {
-                        onSelect(city)
+                        onSelect(city.name)
                     } label: {
                         HStack {
-                            Text(city)
+                            Text(city.name)
                                 .foregroundColor(.trainsBlack)
                                 .padding(.vertical, 10)
                             Spacer()
@@ -59,32 +88,30 @@ struct CitySelectionView: View {
         .background(Color.clear)
         .scrollContentBackground(.hidden)
         .searchable(
-            text: $searchText,
+            text: Binding(get: { vm.searchText }, set: { vm.setSearchText($0) }),
             placement: .navigationBarDrawer(displayMode: .always),
             prompt: "Введите запрос"
         )
+        .navigationTitle("Выбор города")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.trainsBlack)
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text("Выбор города")
-                    .font(.headline)
-                    .foregroundColor(.trainsBlack)
-            }
+        }
+        .task {
+            vm.onAppear()
         }
     }
 }
+
 
 #Preview {
     CitySelectionView { city in
         print("Selected city: \(city)")
     }
 }
-

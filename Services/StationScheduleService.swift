@@ -1,10 +1,11 @@
 //
-//  Untitled.swift
+//  StationScheduleService.swift
 //  Trains
 //
 //  Created by Diana Viter on 10.07.2025.
 //
 
+import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
@@ -14,8 +15,7 @@ protocol StationScheduleProtocol {
     func getStationSchedule(station: String) async throws -> StationSchedule
 }
 
-
-final class StationScheduleService: StationScheduleProtocol {
+actor StationScheduleService: StationScheduleProtocol {
 
     private let client: Client
     private let apikey: String
@@ -28,7 +28,8 @@ final class StationScheduleService: StationScheduleProtocol {
     func getStationSchedule(station: String) async throws -> StationSchedule {
         let response = try await client.getStationSchedule(query: .init(
             apikey: apikey,
-            station: station))
+            station: station
+        ))
         return try response.ok.body.json
     }
 }

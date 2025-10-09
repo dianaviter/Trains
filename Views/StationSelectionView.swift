@@ -8,54 +8,70 @@
 import SwiftUI
 
 struct StationSelectionView: View {
-    let city: String
-    let onSelect: (String) -> Void
-    
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText: String = ""
-    
-    private let stationsByCity: [String: [String]] = [
-        "Москва": ["Киевский вокзал", "Курский вокзал", "Ярославский вокзал", "Белорусский вокзал", "Савеловский вокзал", "Ленинградский вокзал"],
-        "Санкт Петербург": ["Ладожский", "Московский"],
-        "Казань": ["Казань-Пассажирская", "Казань-2"],
-        "Сочи": ["Сочи-Пассажирский"],
-        "Горный воздух": ["Центральная"],
-        "Краснодар": ["Краснодар-1", "Краснодар-2"],
-        "Омск": ["Омск-Пассажирский"]
-    ]
-    
-    private var stations: [String] {
-        stationsByCity[city] ?? []
+    @StateObject private var vm: StationSelectionViewModel
+
+    private let city: String
+    private let onSelect: (StationRef) -> Void
+    private let api: any StationAPI
+
+    init(city: String,
+         api: any StationAPI,
+         onSelect: @escaping (StationRef) -> Void) {
+        self.city = city
+        self.api = api
+        self.onSelect = onSelect
+        _vm = StateObject(wrappedValue: StationSelectionViewModel(city: city, api: api))
     }
-    
-    private var filteredStations: [String] {
-        return searchText.isEmpty ? stations : stations.filter { $0.localizedCaseInsensitiveContains(searchText)
-        }
-    }
-    
+
     var body: some View {
         List {
-            if filteredStations.isEmpty {
-                VStack(spacing: 0) {
-                    Spacer().frame(height: 100)
-                    Text("Станция не найдена")
-                        .font(.headline)
+            if vm.isLoading {
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    ProgressView()
+                    Text("Ищем станции…")
                         .foregroundColor(.trainsBlack)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+
+            } else if let message = vm.errorMessage {
+                VStack(spacing: 12) {
+                    Spacer().frame(height: 160)
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.trainsBlack)
+                    Button("Повторить") {
+                        vm.setSearchText(vm.searchText)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+
+            } else if vm.stations.isEmpty {
+                VStack(spacing: 0) {
+                    Spacer().frame(height: 176)
+                    Text("Станции не найдены")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.trainsBlack)
+                        .frame(maxWidth: .infinity)
                 }
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
+
             } else {
-                ForEach(filteredStations, id: \.self) { station in
-                    Button {
-                        onSelect(station)
-                    } label: {
+                ForEach(vm.stations) { st in
+                    Button { onSelect(st) } label: {
                         HStack {
-                            Text(station)
+                            Text(cleanTitle(st.title, city: st.city.isEmpty ? city : st.city))
                                 .foregroundColor(.trainsBlack)
                                 .padding(.vertical, 10)
-                                .font(.system(size: 17))
-                            Spacer()
+                                .lineLimit(3)
+                                .multilineTextAlignment(.leading)
+                            Spacer(minLength: 8)
                             Image(systemName: "chevron.right")
                                 .foregroundColor(.trainsBlack)
                         }
@@ -69,31 +85,61 @@ struct StationSelectionView: View {
         .background(Color.clear)
         .scrollContentBackground(.hidden)
         .searchable(
-            text: $searchText,
+            text: Binding(get: { vm.searchText }, set: { vm.setSearchText($0) }),
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: "Введите станцию"
+            prompt: "Введите запрос"
         )
+        .navigationTitle("Выбор станции")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
+                Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.trainsBlack)
                 }
             }
-            ToolbarItem(placement: .principal) {
-                Text("Выбор станции")
-                    .font(.headline)
-                    .foregroundColor(.trainsBlack)
-            }
         }
+        .onAppear { vm.onAppear() }
     }
 }
 
-#Preview {
-    StationSelectionView(city: "Москва") { selectedStation in
-        print("Selected station: \(selectedStation)")
+// MARK: - Helpers
+
+private func cleanTitle(_ title: String, city: String) -> String {
+    var out = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    let cityNorm = normalize(city)
+
+    func stripOneTail(_ s: inout String) -> Bool {
+        guard let range = s.range(of: #"\s*\(([^()]*)\)\s*$"#, options: .regularExpression) else {
+            return false
+        }
+        let innerStart = s.index(after: range.lowerBound)
+        let innerEnd   = s.index(before: range.upperBound)
+        let insideRaw  = String(s[innerStart..<innerEnd])
+        let insideNorm = normalize(
+            insideRaw
+                .replacingOccurrences(of: "г.", with: "", options: [.caseInsensitive, .regularExpression])
+                .replacingOccurrences(of: "город", with: "", options: [.caseInsensitive, .regularExpression])
+        )
+
+        if insideNorm == cityNorm {
+            s.removeSubrange(range)
+            s = s.trimmingCharacters(in: .whitespacesAndNewlines)
+            return true
+        }
+        return false
     }
+    while stripOneTail(&out) {}
+
+    return out
 }
+
+private func normalize(_ s: String) -> String {
+    s.folding(options: [.diacriticInsensitive, .caseInsensitive],
+              locale: Locale(identifier: "ru_RU"))
+     .replacingOccurrences(of: "ё", with: "е")
+     .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+     .trimmingCharacters(in: .whitespacesAndNewlines)
+}
+

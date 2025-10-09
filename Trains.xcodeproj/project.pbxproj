@@ -16,10 +16,20 @@
 		1235759F2E439557004E4BC8 /* FiltersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235759E2E439557004E4BC8 /* FiltersView.swift */; };
 		123575BC2E453722004E4BC8 /* ErrorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123575BB2E453722004E4BC8 /* ErrorScreen.swift */; };
 		123575CC2E4539B2004E4BC8 /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123575C92E4539AC004E4BC8 /* ErrorManager.swift */; };
-		123576142E4A87A0004E4BC8 /* CarrierInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123576132E4A879F004E4BC8 /* CarrierInfo.swift */; };
-		123576502E4B76EA004E4BC8 /* StoryThumb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235764F2E4B76EA004E4BC8 /* StoryThumb.swift */; };
-		124069B42E1C682200239129 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B32E1C682200239129 /* OpenAPIRuntime */; };
-		124069B72E1C687300239129 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 124069B62E1C687300239129 /* OpenAPIURLSession */; };
+		123576142E4A87A0004E4BC8 /* CarrierInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123576132E4A879F004E4BC8 /* CarrierInfoView.swift */; };
+		123576502E4B76EA004E4BC8 /* StoriesViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235764F2E4B76EA004E4BC8 /* StoriesViewer.swift */; };
+		123576FA2E50C717004E4BC8 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123576F52E50C3EF004E4BC8 /* SettingsViewModel.swift */; };
+		123577052E50D920004E4BC8 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577042E50D920004E4BC8 /* HomeViewModel.swift */; };
+		1235770B2E50DA1C004E4BC8 /* CitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235770A2E50DA1C004E4BC8 /* CitySelectionViewModel.swift */; };
+		123577132E51F75E004E4BC8 /* StationSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577122E51F75E004E4BC8 /* StationSelectionViewModel.swift */; };
+		1235771D2E51FA4E004E4BC8 /* CarrierListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235771C2E51FA4E004E4BC8 /* CarrierListViewModel.swift */; };
+		123577232E51FB11004E4BC8 /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577222E51FB11004E4BC8 /* FiltersViewModel.swift */; };
+		123577282E51FC56004E4BC8 /* ErrorScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577272E51FC56004E4BC8 /* ErrorScreenViewModel.swift */; };
+		1235772C2E51FCAC004E4BC8 /* CarrierInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1235772B2E51FCAC004E4BC8 /* CarrierInfoViewModel.swift */; };
+		123577362E51FD78004E4BC8 /* StoriesViewerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577352E51FD78004E4BC8 /* StoriesViewerViewModel.swift */; };
+		1235774A2E536733004E4BC8 /* RealCityAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577492E536733004E4BC8 /* RealCityAPI.swift */; };
+		123577522E53718B004E4BC8 /* StationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577512E537188004E4BC8 /* StationsAPI.swift */; };
+		123577592E547E2C004E4BC8 /* RealCarrierAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123577582E547E2C004E4BC8 /* RealCarrierAPI.swift */; };
 		124069C12E1C749300239129 /* openapi.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 124069C02E1C749300239129 /* openapi.yaml */; };
 		124069C32E1C74A600239129 /* openapi-generator-config.yaml in Resources */ = {isa = PBXBuildFile; fileRef = 124069C22E1C74A100239129 /* openapi-generator-config.yaml */; };
 		124069EB2E1D566D00239129 /* TrainsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124069E92E1D566D00239129 /* TrainsApp.swift */; };
@@ -31,6 +41,8 @@
 		12406A212E204FED00239129 /* RouteStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A202E204FED00239129 /* RouteStationsService.swift */; };
 		12406A372E22697700239129 /* NearestCityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A362E22697600239129 /* NearestCityService.swift */; };
 		12406A432E226AE200239129 /* CarrierInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12406A422E226AE200239129 /* CarrierInfoService.swift */; };
+		125BD9DA2E59090C00FB9728 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 125BD9D92E59090C00FB9728 /* OpenAPIRuntime */; };
+		125BD9DC2E59091000FB9728 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 125BD9DB2E59091000FB9728 /* OpenAPIURLSession */; };
 		12E62D002E22CD3200B78D19 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124069882E1C63CB00239129 /* ContentView.swift */; };
 		12E62D142E22F51900B78D19 /* AllStationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12E62D132E22F51800B78D19 /* AllStationsService.swift */; };
 /* End PBXBuildFile section */
@@ -62,8 +74,20 @@
 		1235759E2E439557004E4BC8 /* FiltersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersView.swift; sourceTree = "<group>"; };
 		123575BB2E453722004E4BC8 /* ErrorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorScreen.swift; sourceTree = "<group>"; };
 		123575C92E4539AC004E4BC8 /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
-		123576132E4A879F004E4BC8 /* CarrierInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierInfo.swift; sourceTree = "<group>"; };
-		1235764F2E4B76EA004E4BC8 /* StoryThumb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryThumb.swift; sourceTree = "<group>"; };
+		123576132E4A879F004E4BC8 /* CarrierInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierInfoView.swift; sourceTree = "<group>"; };
+		1235764F2E4B76EA004E4BC8 /* StoriesViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewer.swift; sourceTree = "<group>"; };
+		123576F52E50C3EF004E4BC8 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		123577042E50D920004E4BC8 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		1235770A2E50DA1C004E4BC8 /* CitySelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySelectionViewModel.swift; sourceTree = "<group>"; };
+		123577122E51F75E004E4BC8 /* StationSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationSelectionViewModel.swift; sourceTree = "<group>"; };
+		1235771C2E51FA4E004E4BC8 /* CarrierListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierListViewModel.swift; sourceTree = "<group>"; };
+		123577222E51FB11004E4BC8 /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
+		123577272E51FC56004E4BC8 /* ErrorScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorScreenViewModel.swift; sourceTree = "<group>"; };
+		1235772B2E51FCAC004E4BC8 /* CarrierInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarrierInfoViewModel.swift; sourceTree = "<group>"; };
+		123577352E51FD78004E4BC8 /* StoriesViewerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewerViewModel.swift; sourceTree = "<group>"; };
+		123577492E536733004E4BC8 /* RealCityAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealCityAPI.swift; sourceTree = "<group>"; };
+		123577512E537188004E4BC8 /* StationsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationsAPI.swift; sourceTree = "<group>"; };
+		123577582E547E2C004E4BC8 /* RealCarrierAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealCarrierAPI.swift; sourceTree = "<group>"; };
 		124069832E1C63CB00239129 /* Trains.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trains.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		124069882E1C63CB00239129 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		124069902E1C63CD00239129 /* TrainsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrainsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,8 +124,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				124069B72E1C687300239129 /* OpenAPIURLSession in Frameworks */,
-				124069B42E1C682200239129 /* OpenAPIRuntime in Frameworks */,
+				125BD9DC2E59091000FB9728 /* OpenAPIURLSession in Frameworks */,
+				125BD9DA2E59090C00FB9728 /* OpenAPIRuntime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,15 +146,44 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		123576F42E50C3E1004E4BC8 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				123576F52E50C3EF004E4BC8 /* SettingsViewModel.swift */,
+				123577042E50D920004E4BC8 /* HomeViewModel.swift */,
+				1235770A2E50DA1C004E4BC8 /* CitySelectionViewModel.swift */,
+				123577122E51F75E004E4BC8 /* StationSelectionViewModel.swift */,
+				1235771C2E51FA4E004E4BC8 /* CarrierListViewModel.swift */,
+				123577222E51FB11004E4BC8 /* FiltersViewModel.swift */,
+				123577272E51FC56004E4BC8 /* ErrorScreenViewModel.swift */,
+				1235772B2E51FCAC004E4BC8 /* CarrierInfoViewModel.swift */,
+				123577352E51FD78004E4BC8 /* StoriesViewerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		123577482E53671F004E4BC8 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				123577512E537188004E4BC8 /* StationsAPI.swift */,
+				123577492E536733004E4BC8 /* RealCityAPI.swift */,
+				123577582E547E2C004E4BC8 /* RealCarrierAPI.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
 		1240697A2E1C63CB00239129 = {
 			isa = PBXGroup;
 			children = (
 				124069EA2E1D566D00239129 /* Trains */,
+				123577482E53671F004E4BC8 /* API */,
 				124069DE2E1C765A00239129 /* Services */,
+				123576F42E50C3E1004E4BC8 /* ViewModels */,
 				124069D42E1C762600239129 /* Views */,
 				124069BF2E1C746300239129 /* yaml */,
 				124069932E1C63CD00239129 /* TrainsTests */,
 				1240699D2E1C63CD00239129 /* TrainsUITests */,
+				127ADF7E2E56646200BA7445 /* Frameworks */,
 				124069842E1C63CB00239129 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -166,8 +219,8 @@
 				1235758E2E42539C004E4BC8 /* CarrierListView.swift */,
 				1235759E2E439557004E4BC8 /* FiltersView.swift */,
 				123575BB2E453722004E4BC8 /* ErrorScreen.swift */,
-				123576132E4A879F004E4BC8 /* CarrierInfo.swift */,
-				1235764F2E4B76EA004E4BC8 /* StoryThumb.swift */,
+				123576132E4A879F004E4BC8 /* CarrierInfoView.swift */,
+				1235764F2E4B76EA004E4BC8 /* StoriesViewer.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -197,6 +250,13 @@
 			path = Trains;
 			sourceTree = "<group>";
 		};
+		127ADF7E2E56646200BA7445 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -215,8 +275,8 @@
 			);
 			name = Trains;
 			packageProductDependencies = (
-				124069B32E1C682200239129 /* OpenAPIRuntime */,
-				124069B62E1C687300239129 /* OpenAPIURLSession */,
+				125BD9D92E59090C00FB9728 /* OpenAPIRuntime */,
+				125BD9DB2E59091000FB9728 /* OpenAPIURLSession */,
 			);
 			productName = Trains;
 			productReference = 124069832E1C63CB00239129 /* Trains.app */;
@@ -353,21 +413,33 @@
 				12406A372E22697700239129 /* NearestCityService.swift in Sources */,
 				123575BC2E453722004E4BC8 /* ErrorScreen.swift in Sources */,
 				12406A432E226AE200239129 /* CarrierInfoService.swift in Sources */,
-				123576142E4A87A0004E4BC8 /* CarrierInfo.swift in Sources */,
-				123576502E4B76EA004E4BC8 /* StoryThumb.swift in Sources */,
+				123576142E4A87A0004E4BC8 /* CarrierInfoView.swift in Sources */,
+				123576502E4B76EA004E4BC8 /* StoriesViewer.swift in Sources */,
+				123577052E50D920004E4BC8 /* HomeViewModel.swift in Sources */,
 				12406A212E204FED00239129 /* RouteStationsService.swift in Sources */,
 				123575382E41519A004E4BC8 /* CitySelectionView.swift in Sources */,
+				1235772C2E51FCAC004E4BC8 /* CarrierInfoViewModel.swift in Sources */,
 				12406A092E1FB46100239129 /* SchedualBetweenStationsService.swift in Sources */,
 				1235759F2E439557004E4BC8 /* FiltersView.swift in Sources */,
+				1235771D2E51FA4E004E4BC8 /* CarrierListViewModel.swift in Sources */,
 				123575082E3FE79D004E4BC8 /* MainAppView.swift in Sources */,
 				123575652E421DA5004E4BC8 /* StationSelectionView.swift in Sources */,
+				1235770B2E50DA1C004E4BC8 /* CitySelectionViewModel.swift in Sources */,
 				12E62D002E22CD3200B78D19 /* ContentView.swift in Sources */,
+				123577232E51FB11004E4BC8 /* FiltersViewModel.swift in Sources */,
 				12E62D142E22F51900B78D19 /* AllStationsService.swift in Sources */,
 				123575CC2E4539B2004E4BC8 /* ErrorManager.swift in Sources */,
+				123577282E51FC56004E4BC8 /* ErrorScreenViewModel.swift in Sources */,
+				123577592E547E2C004E4BC8 /* RealCarrierAPI.swift in Sources */,
 				124069F72E1D56AA00239129 /* NearestStationsService.swift in Sources */,
+				1235774A2E536733004E4BC8 /* RealCityAPI.swift in Sources */,
 				1235750C2E3FE7E2004E4BC8 /* HomeView.swift in Sources */,
+				123577362E51FD78004E4BC8 /* StoriesViewerViewModel.swift in Sources */,
 				124069EB2E1D566D00239129 /* TrainsApp.swift in Sources */,
+				123577132E51F75E004E4BC8 /* StationSelectionViewModel.swift in Sources */,
+				123577522E53718B004E4BC8 /* StationsAPI.swift in Sources */,
 				12406A022E1F130900239129 /* CopyrightService.swift in Sources */,
+				123576FA2E50C717004E4BC8 /* SettingsViewModel.swift in Sources */,
 				1235750F2E3FE7F0004E4BC8 /* SettingsView.swift in Sources */,
 				1235758F2E42539C004E4BC8 /* CarrierListView.swift in Sources */,
 			);
@@ -468,6 +540,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -524,6 +597,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -729,20 +803,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		124069B32E1C682200239129 /* OpenAPIRuntime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 124069B22E1C682200239129 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
-			productName = OpenAPIRuntime;
-		};
-		124069B62E1C687300239129 /* OpenAPIURLSession */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 124069B52E1C687300239129 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
-			productName = OpenAPIURLSession;
-		};
 		124069C82E1C756B00239129 /* OpenAPIGenerator */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 124069B82E1C6A4200239129 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */;
 			productName = "plugin:OpenAPIGenerator";
+		};
+		125BD9D92E59090C00FB9728 /* OpenAPIRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 124069B22E1C682200239129 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;
+			productName = OpenAPIRuntime;
+		};
+		125BD9DB2E59091000FB9728 /* OpenAPIURLSession */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 124069B52E1C687300239129 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */;
+			productName = OpenAPIURLSession;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -6,79 +6,90 @@
 //
 
 import SwiftUI
+import OpenAPIURLSession
+
+private extension String {
+    var norm: String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .replacingOccurrences(of: "ё", with: "е")
+    }
+    func trimmed() -> String { trimmingCharacters(in: .whitespacesAndNewlines) }
+}
 
 struct HomeView: View {
-    @State private var fromText: String = ""
-    @State private var toText: String = ""
+    @StateObject private var vm = HomeViewModel()
 
-    @State private var selectedFromCity: String = ""
-    @State private var selectedToCity: String = ""
+    private let stationAPI: any StationAPI
+    private let carrierAPI: any CarrierAPI
 
-    @State private var isSelectingFrom = false
-    @State private var isSelectingTo = false
+    init() {
+        let client = Client(
+            serverURL: try! Servers.Server1.url(),
+            transport: URLSessionTransport()
+        )
 
-    @State private var isSelectingFromStation = false
-    @State private var isSelectingToStation = false
+        let allStationsService = AllStationsService(
+            client: client,
+            apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
+        )
+        let directory = AllStationsDirectory(service: allStationsService)
+        self.stationAPI = RealStationAPI(directory: directory)
 
-    @State private var isShowingCarriers = false
-    
-    private let storyImages = ["stories1", "stories2", "stories3", "stories4"]
-    
-    @State private var stories: [Story] = [
-        .init(imageName: "stories1", isViewed: false),
-        .init(imageName: "stories2", isViewed: false),
-        .init(imageName: "stories3", isViewed: false),
-        .init(imageName: "stories4", isViewed: false),
-    ]
-    @State private var showStories = false
-    @State private var currentStoryIndex = 0
+        let scheduleService = SchedualBetweenStationsService(
+            client: client,
+            apikey: "6c4d43ec-59a3-4873-9f08-d227b0d3c9ed"
+        )
+        self.carrierAPI = RealCarrierAPI(scheduleService: scheduleService)
+    }
 
     var body: some View {
         NavigationStack {
             VStack {
                 ScrollView {
                     VStack(spacing: 44) {
-                        StoriesStrip(stories: $stories) { index in
-                            currentStoryIndex = index
-                            showStories = true
-                        }
+                        StoriesStrip(
+                            stories: Binding(get: { vm.stories }, set: { vm.stories = $0 }),
+                            onSelect: { vm.tapStory(at: $0) }
+                        )
                         .padding(.top)
+
+                        let fromDisplay = displayText(city: vm.selectedFromCity, stationTitle: vm.fromSelected?.title)
+                        let toDisplay   = displayText(city: vm.selectedToCity,   stationTitle: vm.toSelected?.title)
 
                         HStack {
                             VStack(spacing: 0) {
-                                Button {
-                                    isSelectingFrom = true
-                                } label: {
+                                Button { vm.startSelectingFrom() } label: {
                                     HStack {
-                                        Text(fromText.isEmpty ? "Откуда" : fromText)
-                                            .foregroundColor(fromText.isEmpty ? .gray : .black)
+                                        Text(fromDisplay ?? (vm.fromText.isEmpty ? "Откуда" : vm.fromText))
+                                            .foregroundColor((fromDisplay == nil && vm.fromText.isEmpty) ? .gray : .black)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(nil)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Spacer()
                                     }
                                     .padding()
                                     .background(Color.white)
-                                    .lineLimit(1)
                                 }
 
-                                Button {
-                                    isSelectingTo = true
-                                } label: {
+                                Button { vm.startSelectingTo() } label: {
                                     HStack {
-                                        Text(toText.isEmpty ? "Куда" : toText)
-                                            .foregroundColor(toText.isEmpty ? .gray : .black)
+                                        Text(toDisplay ?? (vm.toText.isEmpty ? "Куда" : vm.toText))
+                                            .foregroundColor((toDisplay == nil && vm.toText.isEmpty) ? .gray : .black)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(nil)
+                                            .fixedSize(horizontal: false, vertical: true)
                                         Spacer()
                                     }
                                     .padding()
                                     .background(Color.white)
-                                    .lineLimit(1)
                                 }
                             }
                             .background(Color.white)
                             .cornerRadius(20)
                             .padding()
 
-                            Button {
-                                swap(&fromText, &toText)
-                            } label: {
+                            Button { vm.swapDirections() } label: {
                                 Image("Change direction")
                                     .padding(12)
                                     .background(Color.white)
@@ -91,16 +102,14 @@ struct HomeView: View {
                         .cornerRadius(30)
                         .padding(.horizontal)
 
-                        if !fromText.isEmpty && !toText.isEmpty {
-                            Button("Найти") {
-                                isShowingCarriers = true
-                            }
-                            .frame(width: 150, height: 60)
-                            .foregroundColor(.white)
-                            .background(Color.trainsBlue)
-                            .cornerRadius(16)
-                            .font(.headline)
-                            .padding(.top, -32)
+                        if !vm.fromText.isEmpty && !vm.toText.isEmpty {
+                            Button("Найти") { vm.searchCarriers() }
+                                .frame(width: 150, height: 60)
+                                .foregroundColor(.white)
+                                .background(Color.trainsBlue)
+                                .cornerRadius(16)
+                                .font(.headline)
+                                .padding(.top, -32)
                         }
                     }
                     .padding(.bottom, 32)
@@ -110,51 +119,92 @@ struct HomeView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
 
-            // MARK: - Navigation
-
-            .navigationDestination(isPresented: $isSelectingFrom) {
-                CitySelectionView { city in
-                    selectedFromCity = city
-                    isSelectingFrom = false
-                    isSelectingFromStation = true
-                }
-                .toolbar(.hidden, for: .tabBar)
-            }
-
-            .navigationDestination(isPresented: $isSelectingFromStation) {
-                StationSelectionView(city: selectedFromCity) { station in
-                    fromText = "\(selectedFromCity) (\(station))"
-                    isSelectingFromStation = false
-                }
-                .toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(isPresented: $isSelectingTo) {
-                CitySelectionView { city in
-                    selectedToCity = city
-                    isSelectingTo = false
-                    isSelectingToStation = true
-                }
-                .toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(isPresented: $isSelectingToStation) {
-                StationSelectionView(city: selectedToCity) { station in
-                    toText = "\(selectedToCity) (\(station))"
-                    isSelectingToStation = false
-                }
-                .toolbar(.hidden, for: .tabBar)
-            }
-            .navigationDestination(isPresented: $isShowingCarriers) {
-                CarrierListView(fromText: fromText, toText: toText)
+            .navigationDestination(
+                isPresented: Binding(get: { vm.isSelectingFrom }, set: { vm.isSelectingFrom = $0 })
+            ) {
+                CitySelectionView { vm.selectFromCity($0) }
                     .toolbar(.hidden, for: .tabBar)
             }
-            .fullScreenCover(isPresented: $showStories) {
-                StoriesViewer(stories: $stories, currentIndex: $currentStoryIndex)
-                    .ignoresSafeArea()
+
+            .navigationDestination(
+                isPresented: Binding(get: { vm.isSelectingFromStation }, set: { vm.isSelectingFromStation = $0 })
+            ) {
+                StationSelectionView(
+                    city: vm.selectedFromCity.isEmpty ? "Москва" : vm.selectedFromCity,
+                    api: stationAPI
+                ) { vm.selectFromStation($0) }
+                .toolbar(.hidden, for: .tabBar)
+            }
+
+            .navigationDestination(
+                isPresented: Binding(get: { vm.isSelectingTo }, set: { vm.isSelectingTo = $0 })
+            ) {
+                CitySelectionView { vm.selectToCity($0) }
+                    .toolbar(.hidden, for: .tabBar)
+            }
+
+            .navigationDestination(
+                isPresented: Binding(get: { vm.isSelectingToStation }, set: { vm.isSelectingToStation = $0 })
+            ) {
+                StationSelectionView(
+                    city: vm.selectedToCity.isEmpty ? "Москва" : vm.selectedToCity,
+                    api: stationAPI
+                ) { vm.selectToStation($0) }
+                .toolbar(.hidden, for: .tabBar)
+            }
+
+            .navigationDestination(
+                isPresented: Binding(get: { vm.isShowingCarriers }, set: { vm.isShowingCarriers = $0 })
+            ) {
+                let fromDisp = displayText(city: vm.selectedFromCity, stationTitle: vm.fromSelected?.title) ?? vm.fromText
+                let toDisp   = displayText(city: vm.selectedToCity,   stationTitle: vm.toSelected?.title)   ?? vm.toText
+
+                CarrierListView(
+                    fromText: vm.fromText,
+                    toText: vm.toText,
+                    fromKey: .init(station: vm.fromSelected?.code, settlement: vm.fromSelected?.settlementCode),
+                    toKey:   .init(station: vm.toSelected?.code,   settlement: vm.toSelected?.settlementCode),
+                    api: carrierAPI,
+                    fromDisplay: fromDisp,
+                    toDisplay: toDisp
+                )
+                .toolbar(.hidden, for: .tabBar)
+            }
+
+            .fullScreenCover(
+                isPresented: Binding(get: { vm.showStories }, set: { vm.showStories = $0 })
+            ) {
+                StoriesViewer(
+                    stories: Binding(get: { vm.stories }, set: { vm.stories = $0 }),
+                    currentIndex: Binding(get: { vm.currentStoryIndex }, set: { vm.currentStoryIndex = $0 })
+                )
+                .ignoresSafeArea()
             }
         }
+        .task { await vm.loadStories() }
+    }
+
+    private func displayText(city rawCity: String, stationTitle rawStation: String?) -> String? {
+        let city = rawCity.trimmed()
+        var st = (rawStation ?? "").trimmed()
+
+        if city.isEmpty && st.isEmpty { return nil }
+        if city.isEmpty { return st }
+        if st.isEmpty { return city }
+
+        while let range = st.range(of: #"\s*\(([^()]*)\)\s*$"#, options: .regularExpression) {
+            let innerStart = st.index(after: range.lowerBound)
+            let innerEnd   = st.index(before: range.upperBound)
+            let inside = String(st[innerStart..<innerEnd]).trimmed()
+            if inside.norm == city.norm {
+                st.removeSubrange(range)
+            } else {
+                break
+            }
+        }
+
+        return "\(city) (\(st.trimmed()))"
     }
 }
 
-#Preview {
-    HomeView()
-}
+#Preview { HomeView() }
